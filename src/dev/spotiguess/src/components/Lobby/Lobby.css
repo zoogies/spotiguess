@@ -1,0 +1,22 @@
+.codeinput{
+    width: 300px;
+    height: 40px;
+    margin: 10px;
+    border-radius: 15px;
+    text-align: center;
+    color: white;
+    background-color: #303030;
+    border-color: transparent;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}

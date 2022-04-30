@@ -1,21 +1,22 @@
 import Button from "../Button/Button";
+import Header from "../Header/Header";
 import "./Home.css";
-import {BsSpotify} from "react-icons/bs";
 
 export default function Home(){
     return (
-        <div className="Home">
-            <div className="Title">
-                <BsSpotify size={60} color={"#1DB954"} />
-                <h1 className="Home_Title">SpotiGuess</h1>
-            </div>
-            <div className="MenuButton">
+        <div className="toplevel">
+            <Header/>
+            <div className="center" onClick={()=>{
+                window.location.replace('lobby/join');
+            }}>
                 <Button name="Join Lobby"/>
             </div>
-            <div className="MenuButton">
+            <div className="center" onClick={()=>{
+                window.location.replace('create');
+            }}>
                 <Button name="Create Lobby"/>
             </div>
-            <div className="MenuButton">
+            <div className="center">
                 <Button name="Settings"/>
             </div>
         </div>

@@ -1,0 +1,14 @@
+.Home_Title{
+    text-align: center;
+    color: #1DB954;
+    margin: 20px;
+    font-size: 50px;
+}
+
+.Title{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+}
