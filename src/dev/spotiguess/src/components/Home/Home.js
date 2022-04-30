@@ -16,9 +16,6 @@ export default function Home(){
             }}>
                 <Button name="Create Lobby"/>
             </div>
-            <div className="center">
-                <Button name="Settings"/>
-            </div>
         </div>
     )
 }

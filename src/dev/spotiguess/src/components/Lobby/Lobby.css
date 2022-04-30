@@ -20,3 +20,39 @@ input::-webkit-inner-spin-button {
 input[type=number] {
   -moz-appearance: textfield;
 }
+
+.codelabel{
+    margin: 0px;
+}
+
+.lobbycode{
+    margin: 10px;
+    font-size: 50px;
+    color: #1DB954;
+}
+
+.playerlabel{
+    margin: 10px;
+}
+
+.playerlist{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.player{
+    margin: 5px;
+    border-radius: 15px;
+    height: 40px;
+    width: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+h3{
+    margin:0px;
+}
