@@ -2,7 +2,7 @@ import "./Dropdown.css"
 export default function Dropdown(props){
     return(
         <div className="Dropdown">
-            <select className="Select">
+            <select id={props.react_id} className="Select">
                 {
                     props.options.map((op) => {
                         return(
