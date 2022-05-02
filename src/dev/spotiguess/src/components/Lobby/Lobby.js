@@ -16,6 +16,9 @@ export default function LobbyWrapper(){
     }
 }
 
+// https://python-socketio.readthedocs.io/en/latest/server.html
+// https://www.atatus.com/blog/websockets-tutorial-going-real-time-with-node-and-react/
+
 //probably going to have to open websockets and shit here, turning this into a class component and handling its state with multiple returns in the render
 function Lobby(props){
     return(

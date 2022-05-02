@@ -1,3 +1,4 @@
+from crypt import methods
 from distutils.log import debug
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
@@ -44,6 +45,10 @@ def checklobbyexists():
 @app.route('/gentoken',methods=['POST'])
 def gentoken():
     return json.dumps(spotify_auth.getToken(request.json['code'],clientid,clientsecret,redirecturi))
+
+@app.route('/refreshtoken',methods=['POST'])
+def refreshtoken():
+    return json.dumps(spotify_auth.refreshAuth(request.json['refresh_token'],clientid,clientsecret))
 
 @socketio.event
 def my_event(message):
