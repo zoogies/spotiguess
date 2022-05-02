@@ -1,0 +1,25 @@
+.Link{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+.Unlink{
+
+}
+.warning_top{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.warning_lbl{
+    color: yellow;
+}
+.spotify_link_icon{
+    margin-right: 5px;
+}
+.warning_icon{
+    margin-right: 5px;
+}

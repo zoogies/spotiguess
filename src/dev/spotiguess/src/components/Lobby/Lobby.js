@@ -3,6 +3,7 @@ import Button from "../Button/Button";
 import Header from "../Header/Header";
 import "../../Resources/Shared.css";
 import "./Lobby.css";
+import axios from "axios";
 
 export default function LobbyWrapper(){
     const {lobbyid} = useParams();
@@ -15,6 +16,7 @@ export default function LobbyWrapper(){
     }
 }
 
+//probably going to have to open websockets and shit here, turning this into a class component and handling its state with multiple returns in the render
 function Lobby(props){
     return(
         <div className="toplevel">
@@ -48,7 +50,7 @@ function Lobby(props){
         </div>
     )
 }
-
+//probably needs to be a class component so it doesent run request twice TODO
 function JoinLobby(){
     return(
         <div className="JoinLobby">
@@ -57,7 +59,21 @@ function JoinLobby(){
                 <input type="number" id="codeinput" className="codeinput shadow" maxLength={6} placeholder="LOBBY CODE"></input>
             </div>
             <div className="center" onClick={()=>{
-                    //window.location.replace('/lobby/'+document.getElementById('codeinput').value);
+                    var cachedid = document.getElementById('codeinput').value;
+                    axios.post('http://'+process.env.REACT_APP_SERVER_ADDRESS + '/checklobbyexists', {
+                        lobbyid: cachedid
+                      })
+                      .then(function (response) {
+                          if(response.data === true){
+                            window.location.replace('/lobby/'+cachedid);
+                          }
+                          else{
+                              alert('This lobby does not exist!')
+                          }
+                      })
+                      .catch(function (error) {
+                        console.log(error);
+                      });
                 }}>
                 <Button name="Join"/>
             </div>
