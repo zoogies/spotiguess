@@ -4,8 +4,8 @@ import Header from "../Header/Header";
 import "../../Resources/Shared.css";
 import "./Lobby.css";
 import axios from "axios";
-import {SocketContext, socket} from '../../Resources/socket';
-import { useContext,useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import socketIOClient from "socket.io-client";
 
 export default function LobbyWrapper(){
     const {lobbyid} = useParams();
@@ -14,25 +14,45 @@ export default function LobbyWrapper(){
         return <JoinLobby/>
     }
     else{
-        return <Lobby players={['mitsuri','talking ben','goth mommy dommy']} lobbyid={lobbyid} />
+        return <Lobby lobbyid={lobbyid} />
     }
 }
 
 // https://python-socketio.readthedocs.io/en/latest/server.html
 // https://www.atatus.com/blog/websockets-tutorial-going-real-time-with-node-and-react/
 // https://www.youtube.com/watch?v=NwHq1-FkQpU&ab_channel=CodingWithChaim
+// https://www.youtube.com/watch?v=o8x-nLc-V4o&list=PLK0STOMCFms7jQEKo89pHdkO_QdSjDs0t&index=3&ab_channel=CodingWithChaim
 
 //probably going to have to open websockets and shit here, turning this into a class component and handling its state with multiple returns in the render
 function Lobby(props){
-
-    const socket = useContext(SocketContext);
+    const [response, setResponse] = useState("");
+    const [players, setPlayers] = useState("");
 
     useEffect(() => {
-        socket.emit("USER_JOIN"); 
-    });
+        const socket = socketIOClient("ws://127.0.0.1:5000");
+        socket.on("serverconnect", data => {
+            if(data['status'] === 'good'){
+                setResponse(data);
+                socket.emit('lobbyupdate',{'action':'join','lobbyid':props.lobbyid,'name':window.localStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
+            }
+            else{
+                console.log('error');
+            }
+        });
 
-    return(
-        <SocketContext.Provider value={socket}>
+        socket.on("lobbyupdate", data => {
+            if(data['status'] === 'good'){
+                setPlayers(data['data']);
+            }
+            else{
+                console.error(data['data']);
+                alert(data['data'])
+            }
+        });
+    }, []);
+
+    if(typeof players === 'object'){
+        return(
             <div className="toplevel">
                 <Header/>
                 <h2 className="center codelabel">Lobby Code:</h2>
@@ -41,13 +61,13 @@ function Lobby(props){
 
                 <div className="center playerlist">
                     {
-                        props.players.map((player) => {
-                            return(
-                                <div className="player slightshadow center level2" key={player}>
-                                    <h3>{player}</h3>
-                                </div>
-                            )
-                        })
+                            players.map((player) => {
+                                return(
+                                    <div className="player slightshadow center level2" key={Object.keys(player)[0]}>
+                                        <h3>{Object.keys(player)[0]}</h3>
+                                    </div>
+                                )
+                            })
                     }
                 </div>
 
@@ -62,9 +82,26 @@ function Lobby(props){
                     <Button name="Leave"/>
                 </div>
             </div>
-        </SocketContext.Provider>
     )
+    }
+    else{
+        return <p>loading...</p>
+    }
+    
 }
+
+
+
+
+
+//get this tf out my way
+
+
+
+
+
+
+
 //probably needs to be a class component so it doesent run request twice TODO
 function JoinLobby(){
     return(

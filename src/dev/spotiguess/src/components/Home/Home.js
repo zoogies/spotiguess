@@ -4,6 +4,7 @@ import SpotifyLinker from "../SpotifyLinker/SpotifyLinker";
 import "./Home.css";
 import getepoch from "../../Resources/utcepoch";
 import axios from "axios";
+import "../CreateLobby/CreateLobby.css";
 
 export default function Home(){
     //grab our cached id from local storage
@@ -22,17 +23,30 @@ export default function Home(){
         console.log(error);
         });
     }
+    var lcl =  window.localStorage.getItem('spotify_username')
+    if( lcl === null || lcl.split(' ').length < 1){
+        var tempuser = 'user'+Math.floor(Math.random() * 10000);
+    }
+    else{
+        var tempuser = lcl;
+    }
     //check if its longer than 0 trimmed of whitespace and if its not null
     if(clientid !== null && clientid.trim(' ').length > 0){
         return (
             <div className="toplevel">
                 <Header/>
+                <div className="center">
+                    <h2 className="Label">Username:</h2>
+                    <input type="text" maxLength={10} id="userinput" className="codeinput shadow" defaultValue={tempuser}></input>
+                </div>
                 <div className="center" onClick={()=>{
+                    window.localStorage.setItem('spotify_username',document.getElementById('userinput').value)
                     window.location.replace('lobby/join');
                 }}>
                     <Button name="Join Lobby"/>
                 </div>
                 <div className="center" onClick={()=>{
+                    window.localStorage.setItem('spotify_username',document.getElementById('userinput').value)
                     window.location.replace('create');
                 }}>
                     <Button name="Create Lobby"/>

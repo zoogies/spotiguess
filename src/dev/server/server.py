@@ -49,10 +49,21 @@ def gentoken():
 def refreshtoken():
     return json.dumps(spotify_auth.refreshAuth(request.json['refresh_token'],clientid,clientsecret))
 
+
+
 @socketio.event
-def my_event(message):
-    print("SOCKETIO SHIT HAPPENEEEDDDDD")
-    emit('my response', {'data': 'got it!'})
+def connect(message):
+    emit('serverconnect', {'status':'good','data': 'connected'})
+    #emit('newplayer', {'status':'good','data': stack[90820].getplayers()})
+
+@socketio.event
+def lobbyupdate(message):
+    if(message['action'] == 'join'):
+        if(stack[int(message['lobbyid'])].addplayer(message['name'],message['token'])):
+            emit('lobbyupdate', {'status':'good','data': stack[int(message['lobbyid'])].getplayers()})
+        else:
+            emit('lobbyupdate', {'status':'bad','data': 'This name is already in this lobby.'})
+
 
 if __name__ == '__main__':
     socketio.run(app,use_reloader=True,debug=True)
