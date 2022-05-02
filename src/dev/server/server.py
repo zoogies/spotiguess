@@ -36,7 +36,6 @@ def createlobby():
 
 @app.route('/checklobbyexists',methods=['POST'])
 def checklobbyexists():
-    print(stack)
     if(int(request.json['lobbyid']) not in stack):
         return json.dumps(False)
     else:

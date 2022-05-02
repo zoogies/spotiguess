@@ -4,6 +4,8 @@ import Header from "../Header/Header";
 import "../../Resources/Shared.css";
 import "./Lobby.css";
 import axios from "axios";
+import {SocketContext, socket} from '../../Resources/socket';
+import { useContext,useEffect } from "react";
 
 export default function LobbyWrapper(){
     const {lobbyid} = useParams();
@@ -18,39 +20,49 @@ export default function LobbyWrapper(){
 
 // https://python-socketio.readthedocs.io/en/latest/server.html
 // https://www.atatus.com/blog/websockets-tutorial-going-real-time-with-node-and-react/
+// https://www.youtube.com/watch?v=NwHq1-FkQpU&ab_channel=CodingWithChaim
 
 //probably going to have to open websockets and shit here, turning this into a class component and handling its state with multiple returns in the render
 function Lobby(props){
+
+    const socket = useContext(SocketContext);
+
+    useEffect(() => {
+        socket.emit("USER_JOIN"); 
+    });
+
     return(
-        <div className="toplevel">
-            <Header/>
-            <h2 className="center codelabel">Lobby Code:</h2>
-            <h1 className="center lobbycode">{props.lobbyid}</h1>
-            <h2 className="center playerlabel">Players:</h2>
+        <SocketContext.Provider value={socket}>
+            <div className="toplevel">
+                <Header/>
+                <h2 className="center codelabel">Lobby Code:</h2>
+                <h1 className="center lobbycode">{props.lobbyid}</h1>
+                <h2 className="center playerlabel">Players:</h2>
 
-            <div className="center playerlist">
-                {
-                    props.players.map((player) => {
-                        return(
-                            <div className="player slightshadow center level2" key={player}>
-                                <h3>{player}</h3>
-                            </div>
-                        )
-                    })
-                }
-            </div>
+                <div className="center playerlist">
+                    {
+                        props.players.map((player) => {
+                            return(
+                                <div className="player slightshadow center level2" key={player}>
+                                    <h3>{player}</h3>
+                                </div>
+                            )
+                        })
+                    }
+                </div>
 
-            <div className="center" onClick={()=>{
-                    //
-                }}>
-                <Button name="Ready"/>
+                <div className="center" onClick={()=>{
+                        //
+                    }}>
+                    <Button name="Ready"/>
+                </div>
+                <div className="center" onClick={()=>{
+                        window.location.replace('/');
+                    }}>
+                    <Button name="Leave"/>
+                </div>
             </div>
-            <div className="center" onClick={()=>{
-                    window.location.replace('/');
-                }}>
-                <Button name="Leave"/>
-            </div>
-        </div>
+        </SocketContext.Provider>
     )
 }
 //probably needs to be a class component so it doesent run request twice TODO
@@ -76,6 +88,7 @@ function JoinLobby(){
                       })
                       .catch(function (error) {
                         console.log(error);
+                        alert("Something went wrong. Please make sure you have entered a valid 5 digit number.")
                       });
                 }}>
                 <Button name="Join"/>
