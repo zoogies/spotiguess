@@ -59,10 +59,13 @@ def connect(message):
 @socketio.event
 def lobbyupdate(message):
     if(message['action'] == 'join'):
-        if(stack[int(message['lobbyid'])].addplayer(message['name'],message['token'])):
-            emit('lobbyupdate', {'status':'good','data': stack[int(message['lobbyid'])].getplayers()})
-        else:
-            emit('lobbyupdate', {'status':'bad','data': 'This name is already in this lobby.'})
+        try:
+            if(stack[int(message['lobbyid'])].addplayer(message['name'],message['token'])):
+                emit('lobbyupdate', {'status':'good','data': stack[int(message['lobbyid'])].getplayers()})
+            else:
+                emit('lobbyupdate', {'status':'bad','data': 'This name is already in this lobby.'})
+        except:
+            emit('lobbyupdate',{'status':'bad','data': 'This lobby has ended.'})
 
 
 if __name__ == '__main__':

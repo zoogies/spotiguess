@@ -47,6 +47,7 @@ function Lobby(props){
             else{
                 console.error(data['data']);
                 alert(data['data'])
+                window.location.replace('/');
             }
         });
     }, []);
