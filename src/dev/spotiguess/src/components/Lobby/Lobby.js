@@ -67,11 +67,22 @@ function Lobby(props){
                 <div className="center playerlist">
                     {
                             players.map((player) => {
-                                return(
-                                    <div className="player slightshadow center level2" key={Object.keys(player)[0]}>
-                                        <h3>{Object.keys(player)[0]}</h3>
-                                    </div>
-                                )
+                                console.log()
+                                if(player[Object.keys(player)[0]]['state'] === 'unready'){
+                                    return(
+                                        <div className="player slightshadow center level2" key={Object.keys(player)[0]}>
+                                            <h3>{Object.keys(player)[0]}</h3>
+                                        </div>
+                                    )
+                                }
+                                else{
+                                    return(
+                                        <div className="player slightshadow center highlight1" key={Object.keys(player)[0]}>
+                                            <h3>{Object.keys(player)[0]}</h3>
+                                        </div>
+                                    )
+                                }
+                                
                             })
                     }
                 </div>
