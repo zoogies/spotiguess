@@ -1,3 +1,7 @@
+from asyncore import read
+from operator import truediv
+
+
 class room:
     def __init__(self,id,questions,timespan):
         self.id = id
@@ -36,7 +40,7 @@ class room:
     def addplayer(self,name,token):
         if(name in self.players): # if the players name is in the lobby
             if(self.private[name]['token'] == token): #if this player already exists(likely reconnecting)
-                print(self.players)
+                #print(self.players)
                 return True #all gucci
             else:
                 return False #not allowed
@@ -44,7 +48,7 @@ class room:
             #TODO ADD CHECK FOR DUPLICATE TOKEN WITH DIFFERENT NAME, LEAVING ON NOW FOR DEBUG PURPOSES
             self.players[name] = {'state':'unready'}
             self.private[name] = {'token':token}
-            print(self.players)
+            #print(self.players)
             return True
     
     def removeplayer(self,name,token):
@@ -54,3 +58,16 @@ class room:
             return False
         else:
             return True
+    
+    def readyplayer(self,name,token):
+        self.players[name]['state'] = 'ready'
+        return self.trytostart()
+
+    def trytostart(self):
+        ready = True
+        for p in self.players:
+            if(self.players[p]['state'] != 'ready'):
+                ready = False
+        if ready:
+            # THIS IS WHERE I NEED TO START THE GAME AND DO ALL THAT CRAZY SHIT LIKE TRACK QUESTIONS
+            return

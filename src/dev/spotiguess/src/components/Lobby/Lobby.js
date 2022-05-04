@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
 import Button from "../Button/Button";
+import LobbyStatus from "../LobbyStatus/LobbyStatus";
 import Header from "../Header/Header";
 import "../../Resources/Shared.css";
 import "./Lobby.css";
@@ -62,6 +63,11 @@ function Lobby(props){
                 <Header/>
                 <h2 className="center codelabel">Lobby Code:</h2>
                 <h1 className="center lobbycode">{props.lobbyid}</h1>
+
+                <div className="center">
+                    <LobbyStatus data={players}/>
+                </div>
+
                 <h2 className="center playerlabel">Players:</h2>
 
                 <div className="center playerlist">
@@ -87,8 +93,9 @@ function Lobby(props){
                     }
                 </div>
 
-                <div className="center" onClick={()=>{
-                        //
+                <div id='readybutton' className="center" onClick={()=>{
+                        client.current.emit('lobbyupdate',{'action':'ready','lobbyid':props.lobbyid,'name':window.localStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
+                        document.getElementById('readybutton').remove();
                     }}>
                     <Button name="Ready"/>
                 </div>
