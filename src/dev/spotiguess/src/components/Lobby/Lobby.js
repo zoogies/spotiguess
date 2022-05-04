@@ -4,7 +4,7 @@ import Header from "../Header/Header";
 import "../../Resources/Shared.css";
 import "./Lobby.css";
 import axios from "axios";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import socketIOClient from "socket.io-client";
 
 export default function LobbyWrapper(){
@@ -27,9 +27,10 @@ export default function LobbyWrapper(){
 function Lobby(props){
     const [response, setResponse] = useState("");
     const [players, setPlayers] = useState("");
+    const client = useRef();
 
     useEffect(() => {
-        const socket = socketIOClient("ws://127.0.0.1:5000");
+        var socket = socketIOClient("ws://127.0.0.1:5000");
         socket.on("serverconnect", data => {
             if(data['status'] === 'good'){
                 setResponse(data);
@@ -41,7 +42,9 @@ function Lobby(props){
         });
 
         socket.on("lobbyupdate", data => {
+            //alert('got a lobbyalert')
             if(data['status'] === 'good'){
+                //alert('setplayers')
                 setPlayers(data['data']);
             }
             else{
@@ -50,6 +53,7 @@ function Lobby(props){
                 window.location.replace('/');
             }
         });
+        client.current = socket;
     }, []);
 
     if(typeof players === 'object'){
@@ -78,6 +82,7 @@ function Lobby(props){
                     <Button name="Ready"/>
                 </div>
                 <div className="center" onClick={()=>{
+                        client.current.emit('lobbyupdate',{'action':'leave','lobbyid':props.lobbyid,'name':window.localStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
                         window.location.replace('/');
                     }}>
                     <Button name="Leave"/>

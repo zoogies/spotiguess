@@ -1,7 +1,7 @@
 from crypt import methods
 from distutils.log import debug
-from flask import Flask, render_template
-from flask_socketio import SocketIO, emit
+from flask import Flask, render_template, request
+from flask_socketio import SocketIO, emit, join_room, leave_room, send
 import json
 from flask_cors import CORS
 import random
@@ -52,7 +52,7 @@ def refreshtoken():
 
 
 @socketio.event
-def connect(message):
+def connect():
     emit('serverconnect', {'status':'good','data': 'connected'})
     #emit('newplayer', {'status':'good','data': stack[90820].getplayers()})
 
@@ -61,12 +61,21 @@ def lobbyupdate(message):
     if(message['action'] == 'join'):
         try:
             if(stack[int(message['lobbyid'])].addplayer(message['name'],message['token'])):
-                emit('lobbyupdate', {'status':'good','data': stack[int(message['lobbyid'])].getplayers()})
+                join_room(message['lobbyid'])
+                emit('lobbyupdate',{'status':'good','data': stack[int(message['lobbyid'])].getplayers()}, to=message['lobbyid'])
             else:
                 emit('lobbyupdate', {'status':'bad','data': 'This name is already in this lobby.'})
-        except:
+        except Exception as e:
+            print(e)
             emit('lobbyupdate',{'status':'bad','data': 'This lobby has ended.'})
-
+    elif(message['action'] == 'leave'):
+        stack[int(message['lobbyid'])].removeplayer(message['name'],message['token'])
+        roomop = leave_room(message['lobbyid'])
+        if(roomop == False):
+            stack.pop(int(message['lobbyid']))
+        else:
+            print('hitting up my clients')
+            emit('lobbyupdate',{'status':'good','data': stack[int(message['lobbyid'])].getplayers()}, to=message['lobbyid'])
 
 if __name__ == '__main__':
     socketio.run(app,use_reloader=True,debug=True)

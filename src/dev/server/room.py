@@ -36,6 +36,7 @@ class room:
     def addplayer(self,name,token):
         if(name in self.players): # if the players name is in the lobby
             if(self.private[name]['token'] == token): #if this player already exists(likely reconnecting)
+                print(self.players)
                 return True #all gucci
             else:
                 return False #not allowed
@@ -43,4 +44,13 @@ class room:
             #TODO ADD CHECK FOR DUPLICATE TOKEN WITH DIFFERENT NAME, LEAVING ON NOW FOR DEBUG PURPOSES
             self.players[name] = {'state':'unready'}
             self.private[name] = {'token':token}
+            print(self.players)
+            return True
+    
+    def removeplayer(self,name,token):
+        self.players.pop(name) # remove player from players
+        self.private.pop(name) # remove players private data
+        if(len(self.players) == 0 and len(self.private) == 0):
+            return False
+        else:
             return True
