@@ -141,11 +141,15 @@ class room:
                         if songurl in self.usedsongs:
                             pass
                         else:
-                            self.questions[i]['song']=songurl
-                            self.usedsongs.append(songurl)
+                            self.questions[i]['song']= "https://open.spotify.com/embed/"+songurl[25:]
+                            self.usedsongs.append("https://open.spotify.com/embed/"+songurl[25:])
                             #print('set list',i,'to',songurl)
                     
 
-                    self.questions[i]['song'] = {}
+                    #self.questions[i]['song'] = {}
+                
+                ready = self.questions
 
-        return ready # EVENTUALLY THIS RETURN WILL BE CHECKED AS EITHER FALSE OR THE GAME DATA
+                return ready # EVENTUALLY THIS RETURN WILL BE CHECKED AS EITHER FALSE OR THE GAME DATA
+            else:
+                return False

@@ -7,6 +7,7 @@ import "./Lobby.css";
 import axios from "axios";
 import React, { useState, useEffect, useRef } from "react";
 import socketIOClient from "socket.io-client";
+import Game from "../Game/Game";
 
 export default function LobbyWrapper(){
     const {lobbyid} = useParams();
@@ -29,6 +30,8 @@ function Lobby(props){
     const [response, setResponse] = useState("");
     const [players, setPlayers] = useState("");
     const [state, setState] = useState("");
+    const [questions, setQuestions] = useState("");
+    const [currentquestion, setCurrentquestion] = useState("");
     const client = useRef();
 
     useEffect(() => {
@@ -58,6 +61,22 @@ function Lobby(props){
                 window.location.replace('/');
             }
         });
+
+        socket.on("entergame", data => {
+            //alert('got a lobbyalert')
+            if(data['status'] === 'good'){
+                //alert('setplayers')
+                setQuestions(data['data']);
+                setState('game');
+                setCurrentquestion(1);
+            }
+            else{
+                console.error(data['data']);
+                alert(data['data'])
+                window.location.replace('/');
+            }
+        });
+
         client.current = socket;
     }, []);
     if(state === 'lobby'){
@@ -120,7 +139,7 @@ function Lobby(props){
     }
     else if(state === 'game'){
         return(
-            <p>GAME OMG!!</p>
+            <Game srcc={questions[currentquestion]} questionnum={currentquestion} questionamount={questions.length}/>
         )
     }
 }

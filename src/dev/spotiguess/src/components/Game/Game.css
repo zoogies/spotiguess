@@ -1,0 +1,14 @@
+.progressbar{
+    margin: 0px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+}
+.questionlabel{
+    margin: 20px;
+}
+.gamelogo{
+
+}
