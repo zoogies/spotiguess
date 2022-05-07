@@ -60,11 +60,14 @@ def connect():
 def lobbyupdate(message):
     if(message['action'] == 'join'):
         try:
-            if(stack[int(message['lobbyid'])].addplayer(message['name'],message['token'])):
-                join_room(message['lobbyid'])
-                emit('lobbyupdate',{'status':'good','data': stack[int(message['lobbyid'])].getplayers()}, to=message['lobbyid'])
+            if(stack[int(message['lobbyid'])].getgamestate()=='lobby'):
+                if(stack[int(message['lobbyid'])].addplayer(message['name'],message['token'])):
+                    join_room(message['lobbyid'])
+                    emit('lobbyupdate',{'status':'good','data': stack[int(message['lobbyid'])].getplayers()}, to=message['lobbyid'])
+                else:
+                    emit('lobbyupdate', {'status':'bad','data': 'This name is already in this lobby.'})
             else:
-                emit('lobbyupdate', {'status':'bad','data': 'This name is already in this lobby.'})
+                emit('lobbyupdate', {'status':'bad','data': 'This game has already started.'})
         except Exception as e:
             print(e)
             emit('lobbyupdate',{'status':'bad','data': 'This lobby has ended.'})

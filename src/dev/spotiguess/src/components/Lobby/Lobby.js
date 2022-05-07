@@ -28,6 +28,7 @@ export default function LobbyWrapper(){
 function Lobby(props){
     const [response, setResponse] = useState("");
     const [players, setPlayers] = useState("");
+    const [state, setState] = useState("");
     const client = useRef();
 
     useEffect(() => {
@@ -35,7 +36,10 @@ function Lobby(props){
         socket.on("serverconnect", data => {
             if(data['status'] === 'good'){
                 setResponse(data);
-                socket.emit('lobbyupdate',{'action':'join','lobbyid':props.lobbyid,'name':window.localStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
+                setState('lobby');
+                //DEBUG TODO
+                //socket.emit('lobbyupdate',{'action':'join','lobbyid':props.lobbyid,'name':window.localStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
+                socket.emit('lobbyupdate',{'action':'join','lobbyid':props.lobbyid,'name':window.sessionStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
             }
             else{
                 console.log('error');
@@ -56,62 +60,69 @@ function Lobby(props){
         });
         client.current = socket;
     }, []);
-
-    if(typeof players === 'object'){
-        return(
-            <div className="toplevel">
-                <Header/>
-                <h2 className="center codelabel">Lobby Code:</h2>
-                <h1 className="center lobbycode">{props.lobbyid}</h1>
-
-                <div className="center">
-                    <LobbyStatus data={players}/>
-                </div>
-
-                <h2 className="center playerlabel">Players:</h2>
-
-                <div className="center playerlist">
-                    {
-                            players.map((player) => {
-                                console.log()
-                                if(player[Object.keys(player)[0]]['state'] === 'unready'){
-                                    return(
-                                        <div className="player slightshadow center level2" key={Object.keys(player)[0]}>
-                                            <h3>{Object.keys(player)[0]}</h3>
-                                        </div>
-                                    )
-                                }
-                                else{
-                                    return(
-                                        <div className="player slightshadow center highlight1" key={Object.keys(player)[0]}>
-                                            <h3>{Object.keys(player)[0]}</h3>
-                                        </div>
-                                    )
-                                }
-                                
-                            })
-                    }
-                </div>
-
-                <div id='readybutton' className="center" onClick={()=>{
-                        client.current.emit('lobbyupdate',{'action':'ready','lobbyid':props.lobbyid,'name':window.localStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
-                        document.getElementById('readybutton').remove();
-                    }}>
-                    <Button name="Ready"/>
-                </div>
-                <div className="center" onClick={()=>{
-                        client.current.emit('lobbyupdate',{'action':'leave','lobbyid':props.lobbyid,'name':window.localStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
-                        window.location.replace('/');
-                    }}>
-                    <Button name="Leave"/>
-                </div>
-            </div>
-    )
-    }
-    else{
-        return <p>loading...</p>
-    }
+    if(state === 'lobby'){
+        if(typeof players === 'object'){
+            return(
+                <div className="toplevel">
+                    <Header/>
+                    <h2 className="center codelabel">Lobby Code:</h2>
+                    <h1 className="center lobbycode">{props.lobbyid}</h1>
     
+                    <div className="center">
+                        <LobbyStatus data={players}/>
+                    </div>
+    
+                    <h2 className="center playerlabel">Players:</h2>
+    
+                    <div className="center playerlist">
+                        {
+                                players.map((player) => {
+                                    console.log()
+                                    if(player[Object.keys(player)[0]]['state'] === 'unready'){
+                                        return(
+                                            <div className="player slightshadow center level2" key={Object.keys(player)[0]}>
+                                                <h3>{Object.keys(player)[0]}</h3>
+                                            </div>
+                                        )
+                                    }
+                                    else{
+                                        return(
+                                            <div className="player slightshadow center highlight1" key={Object.keys(player)[0]}>
+                                                <h3>{Object.keys(player)[0]}</h3>
+                                            </div>
+                                        )
+                                    }
+                                    
+                                })
+                        }
+                    </div>
+    
+                    <div id='readybutton' className="center" onClick={()=>{
+                            //DEBUG TODO client.current.emit('lobbyupdate',{'action':'ready','lobbyid':props.lobbyid,'name':window.localStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
+                            client.current.emit('lobbyupdate',{'action':'ready','lobbyid':props.lobbyid,'name':window.sessionStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
+                            document.getElementById('readybutton').remove();
+                        }}>
+                        <Button name="Ready"/>
+                    </div>
+                    <div className="center" onClick={()=>{
+                            // DEBUG TODO client.current.emit('lobbyupdate',{'action':'leave','lobbyid':props.lobbyid,'name':window.localStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
+                            client.current.emit('lobbyupdate',{'action':'leave','lobbyid':props.lobbyid,'name':window.sessionStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
+                            window.location.replace('/');
+                        }}>
+                        <Button name="Leave"/>
+                    </div>
+                </div>
+        )
+        }
+        else{
+            return <p>loading...</p>
+        }
+    }
+    else if(state === 'game'){
+        return(
+            <p>GAME OMG!!</p>
+        )
+    }
 }
 
 

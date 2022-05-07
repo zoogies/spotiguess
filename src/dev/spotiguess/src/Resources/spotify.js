@@ -3,9 +3,7 @@ const redirectUri = "http://localhost:3000/callback";
 const clientId = "03f7867600344088955c5b0f5a502c60";
 
 const scopes = [
-  "streaming",
-  "user-read-email",
-  "user-read-private",
+  "user-top-read"
 ];
 
 export const loginUrl = `${authEndpoint}?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=${scopes.join(
