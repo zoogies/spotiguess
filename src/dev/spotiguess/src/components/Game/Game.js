@@ -2,9 +2,17 @@ import "../../Resources/Shared.css"
 import Header from "../Header/Header"
 import "./Game.css"
 import {BsSpotify} from "react-icons/bs";
+import { useEffect } from "react";
 
 export default function Game(props){
-    console.log(props.srcc)
+    
+    useEffect(() => {
+        const iframe = document.querySelector('iframe')
+        iframe.onload = () => {
+            iframe.contentWindow.document.querySelector('[title="Play"]').click()
+        }
+    });
+
     return(
         <div className="toplevel">
             <div className="progressbar level2 shadow">
@@ -15,7 +23,8 @@ export default function Game(props){
                 <h2>Who has listened to this song the most?</h2>
             </div>
             <div>
-                <iframe title="balls" src={props.srcc['song']} width="100%" height={380} frameBorder={0} allowFullScreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+                <iframe
+                title="balls" src={props.srcc['song']} width="100%" height={380} frameBorder={0} allowFullScreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
             </div>
         </div>
     )
