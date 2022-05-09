@@ -81,10 +81,11 @@ def lobbyupdate(message):
             #print('hitting up my clients')
             emit('lobbyupdate',{'status':'good','data': stack[int(message['lobbyid'])].getplayers()}, to=message['lobbyid'])
     elif(message['action'] == 'ready'):
-        emit('lobbyupdate',{'status':'good','data': stack[int(message['lobbyid'])].getplayers()}, to=message['lobbyid'])
         result = stack[int(message['lobbyid'])].readyplayer(message['name'],message['token'])
-        if(result != False):
+        if(result != False and result != None):
             emit('entergame',{'status':'good','data': result}, to=message['lobbyid'])
+        else:
+            emit('lobbyupdate',{'status':'good','data': stack[int(message['lobbyid'])].getplayers()}, to=message['lobbyid'])
 
 if __name__ == '__main__':
     socketio.run(app,use_reloader=True,debug=True)

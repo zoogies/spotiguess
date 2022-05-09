@@ -80,8 +80,8 @@ class room:
         ready = True
 
         # TODO DISABLED FOR TESTING
-        #if(len(self.players.keys()) < 4):
-        #    ready = False
+        if(len(self.players.keys()) < 4):
+            ready = False
 
         for p in self.players:
             if(self.players[p]['state'] != 'ready'):
@@ -107,7 +107,7 @@ class room:
                     })
 
                     #WARNING TODO UNTESTED METHOD FOR POPULATING INCORRECT GUESSES
-                    while(len(self.questions[i]['answers']) < 1): #TODO THIS MIGHT BE GIVING ERROR WHEN TESTING WITHOUT 4 PEOPLE CHANGING TO 1
+                    while(len(self.questions[i]['answers']) < 4): #TODO THIS MIGHT BE GIVING ERROR WHEN TESTING WITHOUT 4 PEOPLE CHANGING TO 1
                         wrongperson = list(self.private)[random.randint(0,len(self.private) -1)]
                         if wrongperson in self.questions[i]['answers']:
                             pass

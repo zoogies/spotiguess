@@ -5,7 +5,7 @@ import {BsSpotify} from "react-icons/bs";
 import { useEffect } from "react";
 
 export default function Game(props){
-    
+    //TODO USE SOME BULLSHIT STATE HOOK TO LOCK ANSWERS WHEN ONE CLICKED
     useEffect(() => {
         const iframe = document.querySelector('iframe')
         iframe.onload = () => {
@@ -22,9 +22,32 @@ export default function Game(props){
             <div className="questionlabel center">
                 <h2>Who has listened to this song the most?</h2>
             </div>
-            <div>
+            <div className="toplevel center">
                 <iframe
-                title="balls" src={props.srcc['song']} width="100%" height={380} frameBorder={0} allowFullScreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+                title="balls" className="spotifyembed" src={props.srcc['song']} width="100%" height={380} frameBorder={0} allowFullScreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+            </div>
+            <div className="toplevel center answers">
+                {
+                    Object.keys(props.answers).map(function(keyName, keyIndex) {
+                        // use keyName to get current key's name
+                        // and a[keyName] to get its value
+                        //if(props.answers[keyName] === 'correct'){
+                        if(true){ //DEBUG TODO THIS NEEDS TO CHECK IF QUESTION HAS ENDED
+                            return(
+                                <h2 id={keyIndex} key={keyIndex} className="level2 shadow answerbtn" onClick={()=>{
+                                    document.querySelectorAll('.selected').forEach(function(e) {
+                                        e.classList.remove("selected")
+                                    });
+                                    document.getElementById(keyIndex).classList.add("selected");
+                                }}>{keyName}</h2>
+                            )
+                        }
+                        //else{
+                        //
+                        //}
+
+                      })
+                }
             </div>
         </div>
     )

@@ -96,7 +96,6 @@ function Lobby(props){
                     <div className="center playerlist">
                         {
                                 players.map((player) => {
-                                    console.log()
                                     if(player[Object.keys(player)[0]]['state'] === 'unready'){
                                         return(
                                             <div className="player slightshadow center level2" key={Object.keys(player)[0]}>
@@ -139,7 +138,7 @@ function Lobby(props){
     }
     else if(state === 'game'){
         return(
-            <Game srcc={questions[currentquestion]} questionnum={currentquestion} questionamount={questions.length}/>
+            <Game answers={questions[currentquestion]['answers']} srcc={questions[currentquestion]} questionnum={currentquestion} questionamount={questions.length}/>
         )
     }
 }

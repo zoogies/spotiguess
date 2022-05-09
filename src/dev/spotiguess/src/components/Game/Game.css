@@ -5,10 +5,33 @@
     flex-wrap: nowrap;
     justify-content: center;
     align-items: center;
+    width: 100%;
 }
 .questionlabel{
     margin: 20px;
 }
 .gamelogo{
+    
+}
+.spotifyembed{
+    max-width: 500px;
+    width: 100%;
+    align-self: center;
+    justify-self: center;
+}
 
+.answers{
+    display: flex;
+    flex-direction: row;
+    margin-top: 40px;
+}
+
+.answerbtn{
+    border-radius: 10px;
+    margin: 10px;
+    padding: 10px;
+}
+
+.selected {
+    background-color: #868686;
 }
