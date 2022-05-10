@@ -32,9 +32,13 @@ function Lobby(props){
     const [state, setState] = useState("");
     const [questions, setQuestions] = useState("");
     const [currentquestion, setCurrentquestion] = useState("");
+    const [votes, setVotes] = useState("");
+    //const [fuckreact, fuckyoureact] = useState(0);
+    const [currenttime, setCurrenttime] = useState("");
     const client = useRef();
 
     useEffect(() => {
+        var fuckreact = 0;
         var socket = socketIOClient("ws://127.0.0.1:5000");
         socket.on("serverconnect", data => {
             if(data['status'] === 'good'){
@@ -54,6 +58,7 @@ function Lobby(props){
             if(data['status'] === 'good'){
                 //alert('setplayers')
                 setPlayers(data['data']);
+                setVotes("0/"+data['data'].length);
             }
             else{
                 console.error(data['data']);
@@ -62,13 +67,27 @@ function Lobby(props){
             }
         });
 
+        socket.on("gameupdate", data => {
+            //alert('got a lobbyalert')
+            if(data['status'] === 'good'){
+                //alert('setplayers')
+                setVotes(data['data']);
+            }
+            else{
+                console.error(data['data']);
+                alert(data['data'])
+            }
+        });
+
         socket.on("entergame", data => {
             //alert('got a lobbyalert')
             if(data['status'] === 'good'){
                 //alert('setplayers')
+                fuckreact = Math.round(Date.now() / 1000) + 20;
                 setQuestions(data['data']);
                 setState('game');
                 setCurrentquestion(1);
+                console.log('set end to '+fuckreact)
             }
             else{
                 console.error(data['data']);
@@ -76,6 +95,23 @@ function Lobby(props){
                 window.location.replace('/');
             }
         });
+
+        setInterval(() => {
+            var tm = fuckreact - (Math.round(Date.now() / 1000));
+            setCurrenttime(tm);
+            if(tm >= 0){
+                setCurrenttime(tm);
+            }
+            else if(tm < 0 && tm > -5){
+                setCurrenttime("Answer");
+            }
+            else{
+                setCurrenttime("Loading next...")
+                fuckreact = Math.round(Date.now() / 1000) + 20;
+                setCurrentquestion(currentquestion + 1);
+                console.log(currentquestion)
+            }
+        }, 1000);
 
         client.current = socket;
     }, []);
@@ -137,9 +173,7 @@ function Lobby(props){
         }
     }
     else if(state === 'game'){
-        return(
-            <Game answers={questions[currentquestion]['answers']} srcc={questions[currentquestion]} questionnum={currentquestion} questionamount={questions.length}/>
-        )
+        return <Game currenttime={currenttime} votes={votes} call={()=>{client.current.emit('lobbyupdate',{'action':'vote','lobbyid':props.lobbyid,'name':window.sessionStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})}} answers={questions[currentquestion]['answers']} srcc={questions[currentquestion]} questionnum={currentquestion} questionamount={questions.length}/>
     }
 }
 

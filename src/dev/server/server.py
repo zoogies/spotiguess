@@ -86,6 +86,15 @@ def lobbyupdate(message):
             emit('entergame',{'status':'good','data': result}, to=message['lobbyid'])
         else:
             emit('lobbyupdate',{'status':'good','data': stack[int(message['lobbyid'])].getplayers()}, to=message['lobbyid'])
+    elif(message['action'] == 'vote'):
+        votes = stack[int(message['lobbyid'])].vote(message['token']) #either true of the number of votes
+        if(votes == True): #True if that was the last vote, should emit to show the answers then clients will move on
+            pass
+        else: #TODO CHECK HERE TO END THE GAME AFTER LAST QUESTION OR HANDLE THAT CLIENT SIDE
+            emit('gameupdate',{'status':'good','data': votes}, to=message['lobbyid'])
 
 if __name__ == '__main__':
     socketio.run(app,use_reloader=True,debug=True)
+
+# IDEAS
+# could add question time amount and additional game parameters

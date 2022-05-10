@@ -2,15 +2,11 @@ import "../../Resources/Shared.css"
 import Header from "../Header/Header"
 import "./Game.css"
 import {BsSpotify} from "react-icons/bs";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function Game(props){
     //TODO USE SOME BULLSHIT STATE HOOK TO LOCK ANSWERS WHEN ONE CLICKED
-    useEffect(() => {
-        const iframe = document.querySelector('iframe')
-        iframe.onload = () => {
-            iframe.contentWindow.document.querySelector('[title="Play"]').click()
-        }
+    useEffect(() => { 
     });
 
     return(
@@ -21,6 +17,10 @@ export default function Game(props){
             </div>
             <div className="questionlabel center">
                 <h2>Who has listened to this song the most?</h2>
+            </div>
+            <div>
+                <h2>{props.votes} votes</h2>
+                <h2>{props.currenttime}</h2>
             </div>
             <div className="toplevel center">
                 <iframe
@@ -39,6 +39,7 @@ export default function Game(props){
                                         e.classList.remove("selected")
                                     });
                                     document.getElementById(keyIndex).classList.add("selected");
+                                    props.call();
                                 }}>{keyName}</h2>
                             )
                         }

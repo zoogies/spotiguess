@@ -18,6 +18,7 @@ class room:
         self.contenttype = 'song' #lobby shit
         self.gamestate = 'lobby'
         self.usedsongs = [] # list that tracks used song urls
+        self.votes = [] # array of tokens of those who have voted
     
     # returns string of data for debug
     def getdata(self):
@@ -153,3 +154,15 @@ class room:
                 return ready # EVENTUALLY THIS RETURN WILL BE CHECKED AS EITHER FALSE OR THE GAME DATA
             else:
                 return False
+    
+    # returns true if everyone has voted, else returns an int of votes
+    def vote(self,token):
+        if(token not in self.votes):
+            self.votes.append(token)
+            if(len(self.votes) == len(self.players)):
+                self.votes = []
+                return True
+            else:
+                return str(len(self.votes)) + "/" + str(len(self.players))
+        else:
+            return str(len(self.votes)) + "/" + str(len(self.players))
