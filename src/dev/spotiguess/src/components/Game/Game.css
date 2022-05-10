@@ -35,3 +35,16 @@
 .selected {
     background-color: #868686;
 }
+
+.votes{
+    margin:30px;
+    margin-top: 0px;
+}
+.timer{
+    margin:30px;
+    margin-top: 0px;
+    color: #1DB954;
+}
+.gamestatus{
+    align-items: center;
+}

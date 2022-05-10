@@ -18,9 +18,9 @@ export default function Game(props){
             <div className="questionlabel center">
                 <h2>Who has listened to this song the most?</h2>
             </div>
-            <div>
-                <h2>{props.votes} votes</h2>
-                <h2>{props.currenttime}</h2>
+            <div className="center gamestatus">
+                <h1 className="timer">{props.currenttime}</h1>
+                <h2 className="votes">{props.votes} votes</h2>
             </div>
             <div className="toplevel center">
                 <iframe
@@ -31,8 +31,8 @@ export default function Game(props){
                     Object.keys(props.answers).map(function(keyName, keyIndex) {
                         // use keyName to get current key's name
                         // and a[keyName] to get its value
-                        //if(props.answers[keyName] === 'correct'){
-                        if(true){ //DEBUG TODO THIS NEEDS TO CHECK IF QUESTION HAS ENDED
+                        //
+                        if(props.currenttime !== 'Loading Next...' && props.currenttime !== 'Answer:'){ //DEBUG TODO THIS NEEDS TO CHECK IF QUESTION HAS ENDED
                             return(
                                 <h2 id={keyIndex} key={keyIndex} className="level2 shadow answerbtn" onClick={()=>{
                                     document.querySelectorAll('.selected').forEach(function(e) {
@@ -43,9 +43,17 @@ export default function Game(props){
                                 }}>{keyName}</h2>
                             )
                         }
-                        //else{
-                        //
-                        //}
+                        else{
+                            if(props.answers[keyName] === 'correct'){
+                                return(
+                                    <h2 id={keyIndex} key={keyIndex} className="level2 shadow answerbtn highlight1">{keyName}</h2>
+                                )
+                            }
+                            else{
+                                <h2 id={keyIndex} key={keyIndex} className="level2 shadow answerbtn unready">{keyName}</h2>
+
+                            }
+                        }
 
                       })
                 }

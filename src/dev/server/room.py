@@ -166,3 +166,6 @@ class room:
                 return str(len(self.votes)) + "/" + str(len(self.players))
         else:
             return str(len(self.votes)) + "/" + str(len(self.players))
+    
+    def getleaderboard(self):
+        return ['amongus'] #TODO 

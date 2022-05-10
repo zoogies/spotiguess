@@ -37,8 +37,10 @@ class Lobby extends React.Component{
             votes: null,
             currenttime: null,
             lobbyid:props.lobbyid,
+            leaderboard:[],
         }
         this.client = React.createRef();
+        this.getleaderboard = this.getleaderboard.bind(this);
     }
     componentDidMount(){
         var fuckreact = 0;
@@ -105,9 +107,10 @@ class Lobby extends React.Component{
                 this.setState({currenttime:"Answer:"});
             }
             else{
-                console.log(this.state.currentquestion,this.state.questions.length)
+                console.log(this.state.currentquestion,this.state.questions.length) //TODO LEFTOFF - decide if post game lobby shows stats or if answer reveal shows answers also investigate new streaming method
                 if(this.state.currentquestion === this.state.questions.length){
                     this.setState({state:'postgame'})
+                    this.getleaderboard();
                 }
                 this.setState({currenttime:"Loading Next..."});
                 fuckreact = Math.round(Date.now() / 1000) + 20;
@@ -117,6 +120,22 @@ class Lobby extends React.Component{
 
         this.client.current = socket;
     }
+
+    getleaderboard(){
+        console.log('called leaderboard')
+        axios.post('http://'+process.env.REACT_APP_SERVER_ADDRESS + '/getleaderboard', {
+                lobbyid: this.state.lobbyid
+            })
+            .then(function (response) {
+                console.log(((response.data)))
+                this.setState({leaderboard:(response.data)})
+                
+            })
+            .catch(function (error) {
+                console.error(error);
+            });
+    }
+
     render(){
         if(this.state.state === 'lobby'){
             if(typeof this.state.players === 'object'){
@@ -177,6 +196,26 @@ class Lobby extends React.Component{
         }
         else if(this.state.state === 'game'){
             return <Game currenttime={this.state.currenttime} votes={this.state.votes} call={()=>{this.client.current.emit('lobbyupdate',{'action':'vote','lobbyid':this.state.lobbyid,'name':window.sessionStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})}} answers={this.state.questions[this.state.currentquestion - 1]['answers']} srcc={this.state.questions[this.state.currentquestion - 1]} questionnum={this.state.currentquestion} questionamount={this.state.questions.length}/>
+        }
+        else if(this.state.state === 'postgame'){
+            return(
+                <div className="toplevel">
+                    <Header/>
+                    <h1 className="center">Leaderboard:</h1>
+                    <div className="leaderboard">
+                        {
+                            this.state.leaderboard.map((player) => {
+                                return <p>{player}</p>
+                            })
+                        }
+                    </div>
+                    <div className="center" onClick={()=>{
+                        window.location.replace('/');  //TODO ALLOW RETURNING TO LOBBY AND URGENT TODO REMOVE LOBBY PEOPLE AFTER GAME
+                    }}>
+                        <Button name="Exit"/>
+                    </div>
+                </div>
+            )
         }
     }
 }

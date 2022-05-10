@@ -35,6 +35,10 @@ def createlobby():
     stack[lobbynum] = room(lobbynum,request.json['questions'],request.json['timespan'])
     return json.dumps(lobbynum)
 
+@app.route('/getleaderboard', methods = ['POST'])
+def getleaderboard():
+    return json.dumps(stack[int(request.json['lobbyid'])].getleaderboard())
+
 @app.route('/checklobbyexists',methods=['POST'])
 def checklobbyexists():
     if(int(request.json['lobbyid']) not in stack):

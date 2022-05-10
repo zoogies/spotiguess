@@ -20,7 +20,7 @@ export default function Home(){
             window.localStorage.setItem('spotify_token_expires',newtoken['expires_in'] + getepoch());
         })
         .catch(function (error) {
-        console.log(error);
+        console.error(error);
         });
     }
     //var lcl =  window.localStorage.getItem('spotify_username')
