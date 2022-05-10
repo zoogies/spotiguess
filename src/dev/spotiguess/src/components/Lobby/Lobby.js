@@ -26,27 +26,29 @@ export default function LobbyWrapper(){
 // https://www.youtube.com/watch?v=o8x-nLc-V4o&list=PLK0STOMCFms7jQEKo89pHdkO_QdSjDs0t&index=3&ab_channel=CodingWithChaim
 
 //probably going to have to open websockets and shit here, turning this into a class component and handling its state with multiple returns in the render
-function Lobby(props){
-    const [response, setResponse] = useState("");
-    const [players, setPlayers] = useState("");
-    const [state, setState] = useState("");
-    const [questions, setQuestions] = useState("");
-    const [currentquestion, setCurrentquestion] = useState("");
-    const [votes, setVotes] = useState("");
-    //const [fuckreact, fuckyoureact] = useState(0);
-    const [currenttime, setCurrenttime] = useState("");
-    const client = useRef();
-
-    useEffect(() => {
+class Lobby extends React.Component{
+    constructor(props){
+        super(props);
+        this.state = {
+            players: [],
+            state: null,
+            questions: [],
+            currentquestion: null,
+            votes: null,
+            currenttime: null,
+            lobbyid:props.lobbyid,
+        }
+        this.client = React.createRef();
+    }
+    componentDidMount(){
         var fuckreact = 0;
         var socket = socketIOClient("ws://127.0.0.1:5000");
         socket.on("serverconnect", data => {
             if(data['status'] === 'good'){
-                setResponse(data);
-                setState('lobby');
+                this.setState({state:'lobby'})
                 //DEBUG TODO
                 //socket.emit('lobbyupdate',{'action':'join','lobbyid':props.lobbyid,'name':window.localStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
-                socket.emit('lobbyupdate',{'action':'join','lobbyid':props.lobbyid,'name':window.sessionStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
+                socket.emit('lobbyupdate',{'action':'join','lobbyid':this.state.lobbyid,'name':window.sessionStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
             }
             else{
                 console.log('error');
@@ -56,9 +58,8 @@ function Lobby(props){
         socket.on("lobbyupdate", data => {
             //alert('got a lobbyalert')
             if(data['status'] === 'good'){
-                //alert('setplayers')
-                setPlayers(data['data']);
-                setVotes("0/"+data['data'].length);
+                console.log(data['data'])
+                this.setState({players:data['data'],votes:"0/"+data['data'].length});
             }
             else{
                 console.error(data['data']);
@@ -71,7 +72,7 @@ function Lobby(props){
             //alert('got a lobbyalert')
             if(data['status'] === 'good'){
                 //alert('setplayers')
-                setVotes(data['data']);
+                this.setState({votes:data['data']});
             }
             else{
                 console.error(data['data']);
@@ -84,9 +85,7 @@ function Lobby(props){
             if(data['status'] === 'good'){
                 //alert('setplayers')
                 fuckreact = Math.round(Date.now() / 1000) + 20;
-                setQuestions(data['data']);
-                setState('game');
-                setCurrentquestion(1);
+                this.setState({questions:data['data'],state:'game',currentquestion:1});
                 console.log('set end to '+fuckreact)
             }
             else{
@@ -98,82 +97,87 @@ function Lobby(props){
 
         setInterval(() => {
             var tm = fuckreact - (Math.round(Date.now() / 1000));
-            setCurrenttime(tm);
+            this.setState({currenttime:tm});
             if(tm >= 0){
-                setCurrenttime(tm);
+                this.setState({currenttime:tm});
             }
             else if(tm < 0 && tm > -5){
-                setCurrenttime("Answer");
+                this.setState({currenttime:"Answer:"});
             }
             else{
-                setCurrenttime("Loading next...")
+                console.log(this.state.currentquestion,this.state.questions.length)
+                if(this.state.currentquestion === this.state.questions.length){
+                    this.setState({state:'postgame'})
+                }
+                this.setState({currenttime:"Loading Next..."});
                 fuckreact = Math.round(Date.now() / 1000) + 20;
-                setCurrentquestion(currentquestion + 1);
-                console.log(currentquestion)
+                this.setState({currentquestion:this.state.currentquestion + 1});
             }
         }, 1000);
 
-        client.current = socket;
-    }, []);
-    if(state === 'lobby'){
-        if(typeof players === 'object'){
-            return(
-                <div className="toplevel">
-                    <Header/>
-                    <h2 className="center codelabel">Lobby Code:</h2>
-                    <h1 className="center lobbycode">{props.lobbyid}</h1>
-    
-                    <div className="center">
-                        <LobbyStatus data={players}/>
-                    </div>
-    
-                    <h2 className="center playerlabel">Players:</h2>
-    
-                    <div className="center playerlist">
-                        {
-                                players.map((player) => {
-                                    if(player[Object.keys(player)[0]]['state'] === 'unready'){
-                                        return(
-                                            <div className="player slightshadow center level2" key={Object.keys(player)[0]}>
-                                                <h3>{Object.keys(player)[0]}</h3>
-                                            </div>
-                                        )
-                                    }
-                                    else{
-                                        return(
-                                            <div className="player slightshadow center highlight1" key={Object.keys(player)[0]}>
-                                                <h3>{Object.keys(player)[0]}</h3>
-                                            </div>
-                                        )
-                                    }
-                                    
-                                })
-                        }
-                    </div>
-    
-                    <div id='readybutton' className="center" onClick={()=>{
-                            //DEBUG TODO client.current.emit('lobbyupdate',{'action':'ready','lobbyid':props.lobbyid,'name':window.localStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
-                            client.current.emit('lobbyupdate',{'action':'ready','lobbyid':props.lobbyid,'name':window.sessionStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
-                            document.getElementById('readybutton').remove();
-                        }}>
-                        <Button name="Ready"/>
-                    </div>
-                    <div className="center" onClick={()=>{
-                            // DEBUG TODO client.current.emit('lobbyupdate',{'action':'leave','lobbyid':props.lobbyid,'name':window.localStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
-                            client.current.emit('lobbyupdate',{'action':'leave','lobbyid':props.lobbyid,'name':window.sessionStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
-                            window.location.replace('/');
-                        }}>
-                        <Button name="Leave"/>
-                    </div>
-                </div>
-        )
-        }
-        else{
-            return <p>loading...</p>
-        }
+        this.client.current = socket;
     }
-    else if(state === 'game'){
-        return <Game currenttime={currenttime} votes={votes} call={()=>{client.current.emit('lobbyupdate',{'action':'vote','lobbyid':props.lobbyid,'name':window.sessionStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})}} answers={questions[currentquestion]['answers']} srcc={questions[currentquestion]} questionnum={currentquestion} questionamount={questions.length}/>
+    render(){
+        if(this.state.state === 'lobby'){
+            if(typeof this.state.players === 'object'){
+                return(
+                    <div className="toplevel">
+                        <Header/>
+                        <h2 className="center codelabel">Lobby Code:</h2>
+                        <h1 className="center lobbycode">{this.state.lobbyid}</h1>
+        
+                        <div className="center">
+                            <LobbyStatus data={this.state.players}/>
+                        </div>
+        
+                        <h2 className="center playerlabel">Players:</h2>
+        
+                        <div className="center playerlist">
+                            {
+                                    this.state.players.map((player) => {
+                                        if(player[Object.keys(player)[0]]['state'] === 'unready'){
+                                            return(
+                                                <div className="player slightshadow center level2" key={Object.keys(player)[0]}>
+                                                    <h3>{Object.keys(player)[0]}</h3>
+                                                </div>
+                                            )
+                                        }
+                                        else{
+                                            return(
+                                                <div className="player slightshadow center highlight1" key={Object.keys(player)[0]}>
+                                                    <h3>{Object.keys(player)[0]}</h3>
+                                                </div>
+                                            )
+                                        }
+                                        
+                                    })
+                            }
+                        </div>
+        
+                        <div id='readybutton' className="center" onClick={()=>{
+                                //DEBUG TODO client.current.emit('lobbyupdate',{'action':'ready','lobbyid':props.lobbyid,'name':window.localStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
+                                this.client.current.emit('lobbyupdate',{'action':'ready','lobbyid':this.state.lobbyid,'name':window.sessionStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
+                                document.getElementById('readybutton').remove();
+                            }}>
+                            <Button name="Ready"/>
+                        </div>
+                        <div className="center" onClick={()=>{
+                                // DEBUG TODO client.current.emit('lobbyupdate',{'action':'leave','lobbyid':props.lobbyid,'name':window.localStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
+                                this.client.current.emit('lobbyupdate',{'action':'leave','lobbyid':this.state.lobbyid,'name':window.sessionStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
+                                window.location.replace('/');
+                            }}>
+                            <Button name="Leave"/>
+                        </div>
+                    </div>
+            )
+            }
+            else{
+                return <p>loading...</p>
+            }
+        }
+        else if(this.state.state === 'game'){
+            return <Game currenttime={this.state.currenttime} votes={this.state.votes} call={()=>{this.client.current.emit('lobbyupdate',{'action':'vote','lobbyid':this.state.lobbyid,'name':window.sessionStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})}} answers={this.state.questions[this.state.currentquestion - 1]['answers']} srcc={this.state.questions[this.state.currentquestion - 1]} questionnum={this.state.currentquestion} questionamount={this.state.questions.length}/>
+        }
     }
 }
 
