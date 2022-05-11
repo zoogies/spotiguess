@@ -118,12 +118,12 @@ def lobbyupdate(message):
         else:
             emit('lobbyupdate',{'status':'good','data': stack[int(message['lobbyid'])].getplayers()}, to=message['lobbyid'])
     elif(message['action'] == 'vote'):
-        votes = stack[int(message['lobbyid'])].vote(message['token']) #either true of the number of votes
+        votes = stack[int(message['lobbyid'])].vote(message['name'],message['question'],message['answer']) #either true of the number of votes
         if(votes == True): #True if that was the last vote, should emit to show the answers then clients will move on
             pass
         else: #TODO CHECK HERE TO END THE GAME AFTER LAST QUESTION OR HANDLE THAT CLIENT SIDE
             emit('gameupdate',{'status':'good','data': votes}, to=message['lobbyid'])
-            emit() #SEND JUST BACK TO THAT ONE CLIENT IF THEY ARE RIGHT SO THEY CAN CACHE IT
+            #emit() #SEND JUST BACK TO THAT ONE CLIENT IF THEY ARE RIGHT SO THEY CAN CACHE IT
 
 if __name__ == '__main__':
     socketio.run(app,use_reloader=True,debug=True)

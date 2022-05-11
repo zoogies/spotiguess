@@ -20,7 +20,9 @@ class room:
         self.gamestate = 'lobby'
         self.usedsongs = [] # list that tracks used song urls
         self.votes = [] # array of tokens of those who have voted
+        self.scoreboard = {} #IM GETTING LAZY BUT ITS OK BECAUSE THIS IS JUST A PROTO AND NEED TO FINISH SOON
         self.givenboard = 0
+        self.correctvotes = []
         self.lastinteraction = int(time.time()) #tracks last epoch of a direct player interaction (for despawning the lobby) TODO NEEDS IMPLEMENTED
     
     # returns the game state
@@ -55,6 +57,11 @@ class room:
                 return False #not allowed
         else:
             #TODO ADD CHECK FOR DUPLICATE TOKEN WITH DIFFERENT NAME, LEAVING ON NOW FOR DEBUG PURPOSES
+            #for name in self.players:
+            #    if self.private[name][token] == token:
+            #        return False
+            # TODO UNCOMMENT THIS FOR PLAYTEST
+
             self.players[name] = {'state':'unready'}
             self.private[name] = {'token':token}
             #print(self.players)
@@ -160,11 +167,36 @@ class room:
                 return False
     
     # returns true if everyone has voted, else returns an int of votes
-    def vote(self,token):
-        if(token not in self.votes):
-            self.votes.append(token)
+    def vote(self,name,qnum,answer):
+        
+        #if we dont have a scoreboard value for this token
+        #REFACTOR IF RETURN TO PROJECT THIS IS SO SCUFFED FIXME
+        if name not in self.scoreboard:
+            self.scoreboard[name] = 0
+            #print("added name to scoreboard")
+
+        #print(self.questions[qnum -1])
+        #print(self.questions[qnum -1]['answers'])
+        #print(self.questions[qnum -1]['answers'][answer])
+        if(self.questions[qnum -1]['answers'][answer] == 'correct'):
+            #print("clicked correct")
+
+            if name not in self.correctvotes:
+                #print("first time correct")
+                self.scoreboard[name] += 1
+                self.correctvotes.append(name)
+        else:
+            #print("clicked wrong")
+            if name in self.correctvotes:
+                #print("removed name from scoreboard")
+                self.scoreboard[name] -= 1
+                self.correctvotes.remove(name)
+
+        if(name not in self.votes):
+            self.votes.append(name)
             if(len(self.votes) == len(self.players)):
                 self.votes = []
+                self.correctvotes = []
                 return True
             else:
                 return str(len(self.votes)) + "/" + str(len(self.players))
@@ -175,7 +207,7 @@ class room:
         #f(self.gamestate != 'leaderboard'):
         #    self.gamestate = 'leaderboard'
         self.givenboard +=1
-        return ['amongus'] #TODO 
+        return self.scoreboard #TODO 
 
     def checkdespawn(self):
         if(self.givenboard >= len(self.players)): #if we have given the final leaderboard to every player
