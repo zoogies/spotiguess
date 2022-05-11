@@ -38,6 +38,7 @@ class Lobby extends React.Component{
             currenttime: null,
             lobbyid:props.lobbyid,
             leaderboard:[],
+            voted:false,
         }
         this.client = React.createRef();
         this.getleaderboard = this.getleaderboard.bind(this);
@@ -117,6 +118,7 @@ class Lobby extends React.Component{
                 this.setState({currenttime:"Loading Next..."});
                 fuckreact = Math.round(Date.now() / 1000) + 20;
                 this.setState({currentquestion:this.state.currentquestion + 1});
+                this.setState({voted:false});
             }
         }, 1000);
 
@@ -143,7 +145,8 @@ class Lobby extends React.Component{
     }
 
     sendanswer = (answer) => {
-        alert(answer)
+        //alert(answer)
+        this.setState({voted:true})
         this.client.current.emit('lobbyupdate',{'answer':answer,'question':this.state.currentquestion,'action':'vote','lobbyid':this.state.lobbyid,'name':window.sessionStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
     }
 
@@ -206,7 +209,7 @@ class Lobby extends React.Component{
             }
         }
         else if(this.state.state === 'game'){
-            return <Game currenttime={this.state.currenttime} votes={this.state.votes} call={this.sendanswer} answers={this.state.questions[this.state.currentquestion - 1]['answers']} srcc={this.state.questions[this.state.currentquestion - 1]} questionnum={this.state.currentquestion} questionamount={this.state.questions.length}/>
+            return <Game currenttime={this.state.currenttime} voted={this.state.voted} votes={this.state.votes} call={this.sendanswer} answers={this.state.questions[this.state.currentquestion - 1]['answers']} srcc={this.state.questions[this.state.currentquestion - 1]} questionnum={this.state.currentquestion} questionamount={this.state.questions.length}/>
         }
         else if(this.state.state === 'postgame'){
             return(
