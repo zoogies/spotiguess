@@ -6,6 +6,7 @@ from wsgiref import headers
 import requests
 from requests.structures import CaseInsensitiveDict
 import random
+import time
 
 class room:
     def __init__(self,id,questions,timespan):
@@ -19,10 +20,8 @@ class room:
         self.gamestate = 'lobby'
         self.usedsongs = [] # list that tracks used song urls
         self.votes = [] # array of tokens of those who have voted
-    
-    # returns string of data for debug
-    def getdata(self):
-        return "id: "+str(self.id) + " players: "+str(self.players)+" questions: "+self.questions+" timespan: "+self.timespan
+        self.givenboard = 0
+        self.lastinteraction = int(time.time()) #tracks last epoch of a direct player interaction (for despawning the lobby) TODO NEEDS IMPLEMENTED
     
     # returns the game state
     def getgamestate(self):
@@ -32,8 +31,6 @@ class room:
     def getplayers(self):
         reactsucks = []
         for player in self.players:
-            #print(self.players)
-            #print(player)
             reactsucks.append({player:self.players[player]})
         return reactsucks
 
@@ -48,6 +45,8 @@ class room:
     # - if no:
     #   - add player to lobby
     def addplayer(self,name,token):
+        self.lastinteraction = int(time.time())
+
         if(name in self.players): # if the players name is in the lobby
             if(self.private[name]['token'] == token): #if this player already exists(likely reconnecting)
                 #print(self.players)
@@ -63,6 +62,8 @@ class room:
     
     # lets players leave the game and checks if lobby is empty after the operation so the main thread can pop it off the stack
     def removeplayer(self,name,token):
+        self.lastinteraction = int(time.time())
+
         self.players.pop(name) # remove player from players
         self.private.pop(name) # remove players private data
         if(len(self.players) == 0 and len(self.private) == 0):
@@ -72,15 +73,18 @@ class room:
     
     # allows players to ready up
     def readyplayer(self,name,token):
+        self.lastinteraction = int(time.time())
+
         self.players[name]['state'] = 'ready'
         #print(name,self.players[name]['state'])
         return self.trytostart()
 
     # called after player ready event, checks if there are 4 or more players and if they are all ready then generates all questions
     def trytostart(self):
+        self.lastinteraction = int(time.time())
+
         ready = True
 
-        # TODO DISABLED FOR TESTING
         if(len(self.players.keys()) < 4):
             ready = False
 
@@ -108,7 +112,7 @@ class room:
                     })
 
                     #WARNING TODO UNTESTED METHOD FOR POPULATING INCORRECT GUESSES
-                    while(len(self.questions[i]['answers']) < 4): #TODO THIS MIGHT BE GIVING ERROR WHEN TESTING WITHOUT 4 PEOPLE CHANGING TO 1
+                    while(len(self.questions[i]['answers']) < 4):
                         wrongperson = list(self.private)[random.randint(0,len(self.private) -1)]
                         if wrongperson in self.questions[i]['answers']:
                             pass
@@ -168,4 +172,15 @@ class room:
             return str(len(self.votes)) + "/" + str(len(self.players))
     
     def getleaderboard(self):
+        #f(self.gamestate != 'leaderboard'):
+        #    self.gamestate = 'leaderboard'
+        self.givenboard +=1
         return ['amongus'] #TODO 
+
+    def checkdespawn(self):
+        if(self.givenboard >= len(self.players)): #if we have given the final leaderboard to every player
+            return True
+        if(int(time.time()) - self.lastinteraction > 599): #if its been approx 10 minutes since a lobby interaction was recorded
+            return True
+
+        return False #if both conditions fail we should not despawn lobby

@@ -23,7 +23,7 @@ export default class CreateLobby extends React.Component{
             window.location.replace('lobby/'+response.data);
           })
           .catch(function (error) {
-            console.log(error);
+            console.error(error);
           });
 
     }

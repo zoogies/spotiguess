@@ -1,13 +1,16 @@
 from cgitb import reset
 from crypt import methods
 from distutils.log import debug
+from sched import scheduler
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit, join_room, leave_room, send
+from apscheduler.schedulers.background import BackgroundScheduler
 import json
 from flask_cors import CORS
 import random
 from flask import request
 from room import room
+import atexit
 import spotify_auth
 
 spotifydata = json.load(open('spotifydata.json'))
@@ -25,6 +28,21 @@ socketio = SocketIO(app,cors_allowed_origins="*")
 
 stack = {}
 
+###############
+
+#CHECK STACK FOR DEAD/BUGGED LOBBIES
+def lobbypurge():
+    for lobby in list(stack):
+        if stack[lobby].checkdespawn():
+            stack.pop(lobby)
+
+scheduler = BackgroundScheduler()
+scheduler.add_job(func=lobbypurge, trigger="interval", seconds=600) #check for dead lobbies every 10 minutes
+scheduler.start()
+atexit.register(lambda: scheduler.shutdown())
+
+###############
+
 @app.route('/')
 def index():
     return "lol"
@@ -37,7 +55,11 @@ def createlobby():
 
 @app.route('/getleaderboard', methods = ['POST'])
 def getleaderboard():
-    return json.dumps(stack[int(request.json['lobbyid'])].getleaderboard())
+    leaderboard = json.dumps(stack[int(request.json['lobbyid'])].getleaderboard())
+    if(stack[int(request.json['lobbyid'])].checkdespawn()):
+        stack.pop(int(request.json['lobbyid'])) #thank god for automatic memory management
+        #print('removed game: new stack:',stack) VERIFIED THIS WORKS
+    return leaderboard
 
 @app.route('/checklobbyexists',methods=['POST'])
 def checklobbyexists():
@@ -60,6 +82,11 @@ def refreshtoken():
 def connect():
     emit('serverconnect', {'status':'good','data': 'connected'})
     #emit('newplayer', {'status':'good','data': stack[90820].getplayers()})
+
+@socketio.on('client_disconnecting')
+def disconnect_details(data):
+    #print(data)
+    pass # DOES NOT WORK
 
 @socketio.event
 def lobbyupdate(message):
@@ -96,6 +123,7 @@ def lobbyupdate(message):
             pass
         else: #TODO CHECK HERE TO END THE GAME AFTER LAST QUESTION OR HANDLE THAT CLIENT SIDE
             emit('gameupdate',{'status':'good','data': votes}, to=message['lobbyid'])
+            emit() #SEND JUST BACK TO THAT ONE CLIENT IF THEY ARE RIGHT SO THEY CAN CACHE IT
 
 if __name__ == '__main__':
     socketio.run(app,use_reloader=True,debug=True)

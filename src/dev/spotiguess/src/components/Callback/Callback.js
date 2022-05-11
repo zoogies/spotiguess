@@ -15,7 +15,7 @@ export default function Callback(props){
                 alert('An error has occurred.')
             }
             else{
-                console.log(response)
+                //console.log(response)
                 window.localStorage.setItem('spotify_access_token',response['access_token']);
                 window.localStorage.setItem('spotify_refresh_token',response['refresh_token']);
                 window.localStorage.setItem('spotify_token_expires',response['expires_in'] + getepoch());
@@ -23,7 +23,7 @@ export default function Callback(props){
             }
           })
           .catch(function (error) {
-            console.log(error);
+            console.error(error);
             window.location.replace('/');
          });
     }, []) // <-- empty dependency array

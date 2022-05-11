@@ -41,6 +41,7 @@ class Lobby extends React.Component{
         }
         this.client = React.createRef();
         this.getleaderboard = this.getleaderboard.bind(this);
+        this.sendanswer = this.sendanswer.bind(this);
     }
     componentDidMount(){
         var fuckreact = 0;
@@ -53,14 +54,14 @@ class Lobby extends React.Component{
                 socket.emit('lobbyupdate',{'action':'join','lobbyid':this.state.lobbyid,'name':window.sessionStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
             }
             else{
-                console.log('error');
+                console.error('error');
             }
         });
 
         socket.on("lobbyupdate", data => {
             //alert('got a lobbyalert')
             if(data['status'] === 'good'){
-                console.log(data['data'])
+                //console.log(data['data'])
                 this.setState({players:data['data'],votes:"0/"+data['data'].length});
             }
             else{
@@ -88,7 +89,7 @@ class Lobby extends React.Component{
                 //alert('setplayers')
                 fuckreact = Math.round(Date.now() / 1000) + 20;
                 this.setState({questions:data['data'],state:'game',currentquestion:1});
-                console.log('set end to '+fuckreact)
+                //console.log('set end to '+fuckreact)
             }
             else{
                 console.error(data['data']);
@@ -107,10 +108,11 @@ class Lobby extends React.Component{
                 this.setState({currenttime:"Answer:"});
             }
             else{
-                console.log(this.state.currentquestion,this.state.questions.length) //TODO LEFTOFF - decide if post game lobby shows stats or if answer reveal shows answers also investigate new streaming method
+                //console.log(this.state.currentquestion,this.state.questions.length) //TODO LEFTOFF - decide if post game lobby shows stats or if answer reveal shows answers also investigate new streaming method
                 if(this.state.currentquestion === this.state.questions.length){
                     this.setState({state:'postgame'})
                     this.getleaderboard();
+                    clearInterval();
                 }
                 this.setState({currenttime:"Loading Next..."});
                 fuckreact = Math.round(Date.now() / 1000) + 20;
@@ -119,10 +121,14 @@ class Lobby extends React.Component{
         }, 1000);
 
         this.client.current = socket;
+
+        window.onbeforeunload = function () {
+            socket.emit('client_disconnecting', {'lobbyid':this.state.lobbyid,'token':this.state.token,'username':window.sessionStorage.getItem('spotify_username')});
+        }
     }
 
     getleaderboard(){
-        console.log('called leaderboard')
+        //console.log('called leaderboard')
         axios.post('http://'+process.env.REACT_APP_SERVER_ADDRESS + '/getleaderboard', {
                 lobbyid: this.state.lobbyid
             })
@@ -134,6 +140,11 @@ class Lobby extends React.Component{
             .catch(function (error) {
                 console.error(error);
             });
+    }
+
+    sendanswer = (answer) => {
+        alert(answer)
+        this.client.current.emit('lobbyupdate',{'answer':answer,'question':this.state.currentquestion,'action':'vote','lobbyid':this.state.lobbyid,'name':window.sessionStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
     }
 
     render(){
@@ -195,7 +206,7 @@ class Lobby extends React.Component{
             }
         }
         else if(this.state.state === 'game'){
-            return <Game currenttime={this.state.currenttime} votes={this.state.votes} call={()=>{this.client.current.emit('lobbyupdate',{'action':'vote','lobbyid':this.state.lobbyid,'name':window.sessionStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})}} answers={this.state.questions[this.state.currentquestion - 1]['answers']} srcc={this.state.questions[this.state.currentquestion - 1]} questionnum={this.state.currentquestion} questionamount={this.state.questions.length}/>
+            return <Game currenttime={this.state.currenttime} votes={this.state.votes} call={this.sendanswer} answers={this.state.questions[this.state.currentquestion - 1]['answers']} srcc={this.state.questions[this.state.currentquestion - 1]} questionnum={this.state.currentquestion} questionamount={this.state.questions.length}/>
         }
         else if(this.state.state === 'postgame'){
             return(
@@ -254,7 +265,7 @@ function JoinLobby(){
                           }
                       })
                       .catch(function (error) {
-                        console.log(error);
+                        console.error(error);
                         alert("Something went wrong. Please make sure you have entered a valid 5 digit number.")
                       });
                 }}>

@@ -5,7 +5,6 @@ import {BsSpotify} from "react-icons/bs";
 import { useEffect, useState } from "react";
 
 export default function Game(props){
-    //TODO USE SOME BULLSHIT STATE HOOK TO LOCK ANSWERS WHEN ONE CLICKED
     useEffect(() => { 
     });
 
@@ -29,9 +28,6 @@ export default function Game(props){
             <div className="toplevel center answers">
                 {
                     Object.keys(props.answers).map(function(keyName, keyIndex) {
-                        // use keyName to get current key's name
-                        // and a[keyName] to get its value
-                        //
                         if(props.currenttime !== 'Loading Next...' && props.currenttime !== 'Answer:'){ //DEBUG TODO THIS NEEDS TO CHECK IF QUESTION HAS ENDED
                             return(
                                 <h2 id={keyIndex} key={keyIndex} className="level2 shadow answerbtn" onClick={()=>{
@@ -39,22 +35,23 @@ export default function Game(props){
                                         e.classList.remove("selected")
                                     });
                                     document.getElementById(keyIndex).classList.add("selected");
-                                    props.call();
+                                    props.call(keyName);
                                 }}>{keyName}</h2>
                             )
                         }
                         else{
                             if(props.answers[keyName] === 'correct'){
+                                console.log('correct-'+keyName)
                                 return(
                                     <h2 id={keyIndex} key={keyIndex} className="level2 shadow answerbtn highlight1">{keyName}</h2>
                                 )
                             }
                             else{
-                                <h2 id={keyIndex} key={keyIndex} className="level2 shadow answerbtn unready">{keyName}</h2>
-
+                                //return(
+                                //    <h2 id={keyIndex} key={keyIndex} className="level2 shadow answerbtn unready" >{keyName}</h2>
+                                //) WTFFFF WHY DOES THIS NOT WORK LIKE ACTUALLY
                             }
                         }
-
                       })
                 }
             </div>
