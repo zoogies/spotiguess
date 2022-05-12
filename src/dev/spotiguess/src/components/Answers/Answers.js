@@ -16,8 +16,16 @@ export default function Answers(props){
         }
     }
     else if(props.currenttime !== 'Loading Next...'){
-        return(
-            <p>maybe you got it right maybe not</p>
-        )
+        var answer = Object.keys(props.answers).find(key => props.answers[key] === 'correct');
+        if(props.selectedanswer === answer){
+            return(
+                <h2 className="center correctanswertext">Correct! It was {answer}</h2>
+            )
+        }
+        else{
+            return(
+                <h2 className="center wronganswertext">Wrong! It was {answer}</h2>
+            )
+        }
     }
 }

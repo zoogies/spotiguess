@@ -40,6 +40,7 @@ class Lobby extends React.Component{
             leaderboard:null,
             voted:false,
             reactsucks:true,
+            selectedanswer:null,
         }
         this.client = React.createRef();
         this.getleaderboard = this.getleaderboard.bind(this);
@@ -52,8 +53,8 @@ class Lobby extends React.Component{
             if(data['status'] === 'good'){
                 this.setState({state:'lobby'})
                 //DEBUG TODO
-                //socket.emit('lobbyupdate',{'action':'join','lobbyid':props.lobbyid,'name':window.localStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
-                socket.emit('lobbyupdate',{'action':'join','lobbyid':this.state.lobbyid,'name':window.sessionStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
+                socket.emit('lobbyupdate',{'action':'join','lobbyid':this.state.lobbyid,'name':window.localStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
+                //socket.emit('lobbyupdate',{'action':'join','lobbyid':this.state.lobbyid,'name':window.sessionStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
             }
             else{
                 console.error('error');
@@ -129,6 +130,7 @@ class Lobby extends React.Component{
                     clearInterval();
                 }
                 this.setState({currenttime:"Loading Next..."});
+                this.setState({selectedanswer:null})
                 this.setState({votes:"0/"+this.state.players.length});
                 fuckreact = Math.round(Date.now() / 1000) + 20;
                 this.setState({currentquestion:this.state.currentquestion + 1});
@@ -139,7 +141,7 @@ class Lobby extends React.Component{
         this.client.current = socket;
 
         window.onbeforeunload = function () {
-            socket.emit('client_disconnecting', {'lobbyid':this.state.lobbyid,'token':this.state.token,'username':window.sessionStorage.getItem('spotify_username')});
+            socket.emit('client_disconnecting', {'lobbyid':this.state.lobbyid,'token':this.state.token,'username':window.localStorage.getItem('spotify_username')});
         }
     }
 
@@ -150,7 +152,8 @@ class Lobby extends React.Component{
     sendanswer = (answer) => {
         //alert(answer)
         this.setState({voted:true})
-        this.client.current.emit('lobbyupdate',{'answer':answer,'question':this.state.currentquestion,'action':'vote','lobbyid':this.state.lobbyid,'name':window.sessionStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
+        this.setState({selectedanswer:answer})
+        this.client.current.emit('lobbyupdate',{'answer':answer,'question':this.state.currentquestion,'action':'vote','lobbyid':this.state.lobbyid,'name':window.localStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
     }
 
     render(){
@@ -192,14 +195,14 @@ class Lobby extends React.Component{
         
                         <div id='readybutton' className="center" onClick={()=>{
                                 //DEBUG TODO client.current.emit('lobbyupdate',{'action':'ready','lobbyid':props.lobbyid,'name':window.localStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
-                                this.client.current.emit('lobbyupdate',{'action':'ready','lobbyid':this.state.lobbyid,'name':window.sessionStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
+                                this.client.current.emit('lobbyupdate',{'action':'ready','lobbyid':this.state.lobbyid,'name':window.localStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
                                 document.getElementById('readybutton').remove();
                             }}>
                             <Button name="Ready"/>
                         </div>
                         <div className="center" onClick={()=>{
                                 // DEBUG TODO client.current.emit('lobbyupdate',{'action':'leave','lobbyid':props.lobbyid,'name':window.localStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
-                                this.client.current.emit('lobbyupdate',{'action':'leave','lobbyid':this.state.lobbyid,'name':window.sessionStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
+                                this.client.current.emit('lobbyupdate',{'action':'leave','lobbyid':this.state.lobbyid,'name':window.localStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
                                 window.location.replace('/');
                             }}>
                             <Button name="Leave"/>
@@ -212,7 +215,7 @@ class Lobby extends React.Component{
             }
         }
         else if(this.state.state === 'game'){
-            return <Game currenttime={this.state.currenttime} voted={this.state.voted} votes={this.state.votes} call={this.sendanswer} answers={this.state.questions[this.state.currentquestion - 1]['answers']} srcc={this.state.questions[this.state.currentquestion - 1]} questionnum={this.state.currentquestion} questionamount={this.state.questions.length}/>
+            return <Game selectedanswer={this.state.selectedanswer} currenttime={this.state.currenttime} voted={this.state.voted} votes={this.state.votes} call={this.sendanswer} answers={this.state.questions[this.state.currentquestion - 1]['answers']} srcc={this.state.questions[this.state.currentquestion - 1]} questionnum={this.state.currentquestion} questionamount={this.state.questions.length}/>
         }
         else if(this.state.state === 'postgame' && this.state.leaderboard !== null){
             return(

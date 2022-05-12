@@ -56,3 +56,9 @@
     align-items: center;
     margin-bottom: 20px;
 }
+.correctanswertext{
+    color: #1DB954;
+}
+.wronganswertext{
+    color: red;
+}

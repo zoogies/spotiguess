@@ -23,9 +23,9 @@ export default function Home(){
         console.error(error);
         });
     }
-    //var lcl =  window.localStorage.getItem('spotify_username')
+    var lcl =  window.localStorage.getItem('spotify_username')
     //DEBUG TODO
-    var lcl =  window.sessionStorage.getItem('spotify_username')
+    //var lcl =  window.sessionStorage.getItem('spotify_username')
     if( lcl === null || lcl.split(' ').length < 1){
         var tempuser = 'user'+Math.floor(Math.random() * 10000);
     }
@@ -42,15 +42,15 @@ export default function Home(){
                     <input type="text" maxLength={10} id="userinput" className="codeinput shadow" defaultValue={tempuser}></input>
                 </div>
                 <div className="center" onClick={()=>{
-                    // DEBUG TODO window.localStorage.setItem('spotify_username',document.getElementById('userinput').value)
-                    window.sessionStorage.setItem('spotify_username',document.getElementById('userinput').value)
+                    window.localStorage.setItem('spotify_username',document.getElementById('userinput').value)
+                    //window.sessionStorage.setItem('spotify_username',document.getElementById('userinput').value)
                     window.location.replace('lobby/join');
                 }}>
                     <Button name="Join Lobby"/>
                 </div>
                 <div className="center" onClick={()=>{
-                    // DEBUG TODO window.localStorage.setItem('spotify_username',document.getElementById('userinput').value)
-                    window.sessionStorage.setItem('spotify_username',document.getElementById('userinput').value)
+                    window.localStorage.setItem('spotify_username',document.getElementById('userinput').value)
+                    //window.sessionStorage.setItem('spotify_username',document.getElementById('userinput').value)
                     window.location.replace('create');
                 }}>
                     <Button name="Create Lobby"/>

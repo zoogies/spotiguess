@@ -23,7 +23,7 @@ export default function Game(props){
                 title="balls" className="spotifyembed" src={props.srcc['song']} width="100%" height={380} frameBorder={0} allowFullScreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
             </div>
             <div className="toplevel center answers">
-                <Answers questionnum={props.questionnum} voted={props.voted} answers={props.answers} currenttime={props.currenttime} call={props.call}/>
+                <Answers selectedanswer={props.selectedanswer} questionnum={props.questionnum} voted={props.voted} answers={props.answers} currenttime={props.currenttime} call={props.call}/>
             </div>
         </div>
     )

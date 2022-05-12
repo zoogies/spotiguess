@@ -57,9 +57,9 @@ class room:
                 return False #not allowed
         else:
             #TODO ADD CHECK FOR DUPLICATE TOKEN WITH DIFFERENT NAME, LEAVING ON NOW FOR DEBUG PURPOSES
-            #for name in self.players:
-            #    if self.private[name][token] == token:
-            #        return False
+            for name in self.players:
+                if self.private[name][token] == token:
+                    return False
             # TODO UNCOMMENT THIS FOR PLAYTEST
 
             self.players[name] = {'state':'unready'}
