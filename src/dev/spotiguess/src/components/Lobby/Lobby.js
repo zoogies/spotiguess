@@ -101,7 +101,7 @@ class Lobby extends React.Component{
         });
 
         socket.on("leaderboardresponse", data => {
-            alert('got a lobbyalert')
+            //alert('got a lobbyalert')
             if(data['status'] === 'good'){
                 this.setState({leaderboard:data['data']})
             }
@@ -129,7 +129,7 @@ class Lobby extends React.Component{
                     clearInterval();
                 }
                 this.setState({currenttime:"Loading Next..."});
-                this.setState({votes:'0'});
+                this.setState({votes:"0/"+this.state.players.length});
                 fuckreact = Math.round(Date.now() / 1000) + 20;
                 this.setState({currentquestion:this.state.currentquestion + 1});
                 this.setState({voted:false});
@@ -219,10 +219,14 @@ class Lobby extends React.Component{
                 <div className="toplevel">
                     <Header/>
                     <h1 className="center">Results:</h1>
-                    <div className="leaderboard">
+                    <div className="center leaderboard">
                         {
-                            this.state.leaderboard.map((player) => { //TODO IT DONT LIKIE THIS
-                                return <p>{player}</p>
+                            Object.keys(this.state.leaderboard).map((keyname,i) => { //TODO IT DONT LIKIE THIS
+                                return (
+                                    <div className="player slightshadow center level2" key={i}>
+                                        <h3>{keyname} - {this.state.leaderboard[keyname]}/{this.state.questions.length}</h3>
+                                    </div>
+                                )
                             })
                         }
                     </div>
