@@ -1,11 +1,6 @@
 export default function Answers(props){
-    if(props.voted !== false){
-        return (
-            <p>PLACEHOLDER LOADING</p>
-        )
-    }
-    else{
-        if(props.currenttime !== 'Loading Next...' && props.currenttime !== 'Answer:'){
+    if(props.currenttime !== 'Loading Next...' && props.currenttime !== 'Answer:'){
+        if(props.voted === false){
             var fuckyou  = Object.keys(props.answers).sort().reduce((r, k) => (r[k] = props.answers[k], r), {});
             //console.log(fuckyou,typeof fuckyou)
             return(
@@ -14,11 +9,15 @@ export default function Answers(props){
                 })
             )
         }
-        else{
-
-            return(
-                <p>maybe you got it right maybe not</p>
+        else if(props.currenttime !== 'Loading Next...' && props.currenttime !== 'Answer:'){
+            return (
+                <h2>Waiting for question to end...</h2>
             )
         }
+    }
+    else if(props.currenttime !== 'Loading Next...'){
+        return(
+            <p>maybe you got it right maybe not</p>
+        )
     }
 }

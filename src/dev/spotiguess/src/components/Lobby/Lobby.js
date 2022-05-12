@@ -37,8 +37,9 @@ class Lobby extends React.Component{
             votes: null,
             currenttime: null,
             lobbyid:props.lobbyid,
-            leaderboard:[],
+            leaderboard:null,
             voted:false,
+            reactsucks:true,
         }
         this.client = React.createRef();
         this.getleaderboard = this.getleaderboard.bind(this);
@@ -99,6 +100,18 @@ class Lobby extends React.Component{
             }
         });
 
+        socket.on("leaderboardresponse", data => {
+            alert('got a lobbyalert')
+            if(data['status'] === 'good'){
+                this.setState({leaderboard:data['data']})
+            }
+            else{
+                console.error(data['data']);
+                alert(data['data'])
+                window.location.replace('/');
+            }
+        });
+
         setInterval(() => {
             var tm = fuckreact - (Math.round(Date.now() / 1000));
             this.setState({currenttime:tm});
@@ -116,6 +129,7 @@ class Lobby extends React.Component{
                     clearInterval();
                 }
                 this.setState({currenttime:"Loading Next..."});
+                this.setState({votes:'0'});
                 fuckreact = Math.round(Date.now() / 1000) + 20;
                 this.setState({currentquestion:this.state.currentquestion + 1});
                 this.setState({voted:false});
@@ -130,18 +144,7 @@ class Lobby extends React.Component{
     }
 
     getleaderboard(){
-        //console.log('called leaderboard')
-        axios.post('http://'+process.env.REACT_APP_SERVER_ADDRESS + '/getleaderboard', {
-                lobbyid: this.state.lobbyid
-            })
-            .then(function (response) {
-                console.log(((response.data)))
-                this.setState({leaderboard:(response.data)})
-                
-            })
-            .catch(function (error) {
-                console.error(error);
-            });
+        this.client.current.emit('lobbyupdate', {'action':'getleaderboard','lobbyid':this.state.lobbyid});
     }
 
     sendanswer = (answer) => {
@@ -211,14 +214,14 @@ class Lobby extends React.Component{
         else if(this.state.state === 'game'){
             return <Game currenttime={this.state.currenttime} voted={this.state.voted} votes={this.state.votes} call={this.sendanswer} answers={this.state.questions[this.state.currentquestion - 1]['answers']} srcc={this.state.questions[this.state.currentquestion - 1]} questionnum={this.state.currentquestion} questionamount={this.state.questions.length}/>
         }
-        else if(this.state.state === 'postgame'){
+        else if(this.state.state === 'postgame' && this.state.leaderboard !== null){
             return(
                 <div className="toplevel">
                     <Header/>
-                    <h1 className="center">Leaderboard:</h1>
+                    <h1 className="center">Results:</h1>
                     <div className="leaderboard">
                         {
-                            this.state.leaderboard.map((player) => {
+                            this.state.leaderboard.map((player) => { //TODO IT DONT LIKIE THIS
                                 return <p>{player}</p>
                             })
                         }

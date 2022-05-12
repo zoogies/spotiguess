@@ -168,29 +168,12 @@ class room:
     
     # returns true if everyone has voted, else returns an int of votes
     def vote(self,name,qnum,answer):
-        
-        #if we dont have a scoreboard value for this token
-        #REFACTOR IF RETURN TO PROJECT THIS IS SO SCUFFED FIXME
+
         if name not in self.scoreboard:
             self.scoreboard[name] = 0
-            #print("added name to scoreboard")
 
-        #print(self.questions[qnum -1])
-        #print(self.questions[qnum -1]['answers'])
-        #print(self.questions[qnum -1]['answers'][answer])
         if(self.questions[qnum -1]['answers'][answer] == 'correct'):
-            #print("clicked correct")
-
-            if name not in self.correctvotes:
-                #print("first time correct")
-                self.scoreboard[name] += 1
-                self.correctvotes.append(name)
-        else:
-            #print("clicked wrong")
-            if name in self.correctvotes:
-                #print("removed name from scoreboard")
-                self.scoreboard[name] -= 1
-                self.correctvotes.remove(name)
+            self.scoreboard[name] += 1
 
         if(name not in self.votes):
             self.votes.append(name)

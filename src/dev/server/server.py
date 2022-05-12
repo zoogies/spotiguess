@@ -53,14 +53,6 @@ def createlobby():
     stack[lobbynum] = room(lobbynum,request.json['questions'],request.json['timespan'])
     return json.dumps(lobbynum)
 
-@app.route('/getleaderboard', methods = ['POST'])
-def getleaderboard():
-    leaderboard = json.dumps(stack[int(request.json['lobbyid'])].getleaderboard())
-    if(stack[int(request.json['lobbyid'])].checkdespawn()):
-        stack.pop(int(request.json['lobbyid'])) #thank god for automatic memory management
-        #print('removed game: new stack:',stack) VERIFIED THIS WORKS
-    return leaderboard
-
 @app.route('/checklobbyexists',methods=['POST'])
 def checklobbyexists():
     if(int(request.json['lobbyid']) not in stack):
@@ -124,6 +116,11 @@ def lobbyupdate(message):
         else: #TODO CHECK HERE TO END THE GAME AFTER LAST QUESTION OR HANDLE THAT CLIENT SIDE
             emit('gameupdate',{'status':'good','data': votes}, to=message['lobbyid'])
             #emit() #SEND JUST BACK TO THAT ONE CLIENT IF THEY ARE RIGHT SO THEY CAN CACHE IT
+    elif(message['action'] == 'getleaderboard'):
+        leaderboard = stack[int(message['lobbyid'])].getleaderboard()
+        if(stack[int(message['lobbyid'])].checkdespawn()):
+            stack.pop(int(message['lobbyid'])) #thank god for automatic memory management
+        emit('leaderboardresponse',{'status':'good','data': leaderboard})
 
 if __name__ == '__main__':
     socketio.run(app,use_reloader=True,debug=True)
