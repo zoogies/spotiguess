@@ -1,8 +1,9 @@
 from cgitb import reset
 from crypt import methods
 from distutils.log import debug
+import os
 from sched import scheduler
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_from_directory
 from flask_socketio import SocketIO, emit, join_room, leave_room, send
 from apscheduler.schedulers.background import BackgroundScheduler
 import json
@@ -43,10 +44,6 @@ atexit.register(lambda: scheduler.shutdown())
 
 ###############
 
-@app.route('/')
-def index():
-    return "lol"
-
 @app.route('/createlobby', methods = ['POST'])
 def createlobby():
     lobbynum = random.randint(10000,99999)
@@ -69,7 +66,6 @@ def refreshtoken():
     return json.dumps(spotify_auth.refreshAuth(request.json['refresh_token'],clientid,clientsecret))
 
 
-
 @socketio.event
 def connect():
     emit('serverconnect', {'status':'good','data': 'connected'})
@@ -82,48 +78,55 @@ def disconnect_details(data):
 
 @socketio.event
 def lobbyupdate(message):
-    if(message['action'] == 'join'):
-        try:
+    try:
+        if(message['action'] == 'join'): #TO TRY: TRY ONLY GUNICORN HOSTING WITH THE PORTS FORWARDED SOMEONE ELSE JOINS
+            print("DEV-------------------------------GOT JOIN REQUEST")
             if(stack[int(message['lobbyid'])].getgamestate()=='lobby'):
+                print("DEV-------------------------------IS A LOBBY")
+                print("DEV-------------------------------WTF")
+                print("TOKEN-----------------------"+str(stack[int(message['lobbyid'])].addplayer(message['name'],message['token'])))
                 if(stack[int(message['lobbyid'])].addplayer(message['name'],message['token'])):
+                    print("is a lobby")
                     join_room(message['lobbyid'])
+                    print("joined room")
                     emit('lobbyupdate',{'status':'good','data': stack[int(message['lobbyid'])].getplayers()}, to=message['lobbyid'])
+                    print("sent got players")
                 else:
+                    print("DEV------------------------------------------NAME ALREADY IN")
                     emit('lobbyupdate', {'status':'bad','data': 'This name is already in this lobby.'})
             else:
                 emit('lobbyupdate', {'status':'bad','data': 'This game has already started.'})
-        except Exception as e:
-            print(e)
-            emit('lobbyupdate',{'status':'bad','data': 'This lobby has ended.'})
-    elif(message['action'] == 'leave'):
-        stack[int(message['lobbyid'])].removeplayer(message['name'],message['token'])
-        roomop = leave_room(message['lobbyid'])
-        if(roomop == False):
-            stack.pop(int(message['lobbyid']))
-        else:
-            #print('hitting up my clients')
-            emit('lobbyupdate',{'status':'good','data': stack[int(message['lobbyid'])].getplayers()}, to=message['lobbyid'])
-    elif(message['action'] == 'ready'):
-        result = stack[int(message['lobbyid'])].readyplayer(message['name'],message['token'])
-        if(result != False and result != None):
-            emit('entergame',{'status':'good','data': result}, to=message['lobbyid'])
-        else:
-            emit('lobbyupdate',{'status':'good','data': stack[int(message['lobbyid'])].getplayers()}, to=message['lobbyid'])
-    elif(message['action'] == 'vote'):
-        votes = stack[int(message['lobbyid'])].vote(message['name'],message['question'],message['answer']) #either true of the number of votes
-        if(votes == True): #True if that was the last vote, should emit to show the answers then clients will move on
-            pass
-        else: #TODO CHECK HERE TO END THE GAME AFTER LAST QUESTION OR HANDLE THAT CLIENT SIDE
-            emit('gameupdate',{'status':'good','data': votes}, to=message['lobbyid'])
-            #emit() #SEND JUST BACK TO THAT ONE CLIENT IF THEY ARE RIGHT SO THEY CAN CACHE IT
-    elif(message['action'] == 'getleaderboard'):
-        leaderboard = stack[int(message['lobbyid'])].getleaderboard()
-        if(stack[int(message['lobbyid'])].checkdespawn()):
-            stack.pop(int(message['lobbyid'])) #thank god for automatic memory management
-        emit('leaderboardresponse',{'status':'good','data': leaderboard})
+        elif(message['action'] == 'leave'):
+            stack[int(message['lobbyid'])].removeplayer(message['name'],message['token'])
+            roomop = leave_room(message['lobbyid'])
+            if(roomop == False):
+                stack.pop(int(message['lobbyid']))
+            else:
+                #print('hitting up my clients')
+                emit('lobbyupdate',{'status':'good','data': stack[int(message['lobbyid'])].getplayers()}, to=message['lobbyid'])
+        elif(message['action'] == 'ready'):
+            result = stack[int(message['lobbyid'])].readyplayer(message['name'],message['token'])
+            if(result != False and result != None):
+                emit('entergame',{'status':'good','data': result}, to=message['lobbyid'])
+            else:
+                emit('lobbyupdate',{'status':'good','data': stack[int(message['lobbyid'])].getplayers()}, to=message['lobbyid'])
+        elif(message['action'] == 'vote'):
+            votes = stack[int(message['lobbyid'])].vote(message['name'],message['question'],message['answer']) #either true of the number of votes
+            if(votes == True): #True if that was the last vote, should emit to show the answers then clients will move on
+                pass
+            else: #TODO CHECK HERE TO END THE GAME AFTER LAST QUESTION OR HANDLE THAT CLIENT SIDE
+                emit('gameupdate',{'status':'good','data': votes}, to=message['lobbyid'])
+                #emit() #SEND JUST BACK TO THAT ONE CLIENT IF THEY ARE RIGHT SO THEY CAN CACHE IT
+        elif(message['action'] == 'getleaderboard'):
+            leaderboard = stack[int(message['lobbyid'])].getleaderboard()
+            if(stack[int(message['lobbyid'])].checkdespawn()):
+                stack.pop(int(message['lobbyid'])) #thank god for automatic memory management
+            emit('leaderboardresponse',{'status':'good','data': leaderboard})
+    except:
+        pass
 
 if __name__ == '__main__':
-    socketio.run(app,use_reloader=True,debug=True)
+    socketio.run(app,use_reloader=True,debug=True,host="192.168.50.214",port=5050)
 
 # IDEAS
 # could add question time amount and additional game parameters

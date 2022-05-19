@@ -8,22 +8,22 @@ import "../CreateLobby/CreateLobby.css";
 
 export default function Home(){
     //grab our cached id from local storage
-    var clientid = window.localStorage.getItem('spotify_access_token');
-    var access_expires = window.localStorage.getItem('spotify_token_expires');
+    var clientid = window.sessionStorage.getItem('spotify_access_token');
+    var access_expires = window.sessionStorage.getItem('spotify_token_expires');
     if(getepoch() - access_expires > 0){
         axios.post('http://'+process.env.REACT_APP_SERVER_ADDRESS + '/refreshtoken', {
-        refresh_token: window.localStorage.getItem('spotify_refresh_token')
+        refresh_token: window.sessionStorage.getItem('spotify_refresh_token')
         })
         .then(function (response) {
             var newtoken = JSON.parse(JSON.parse(response.data))
-            window.localStorage.setItem('spotify_access_token',(newtoken['access_token']));
-            window.localStorage.setItem('spotify_token_expires',newtoken['expires_in'] + getepoch());
+            window.sessionStorage.setItem('spotify_access_token',(newtoken['access_token']));
+            window.sessionStorage.setItem('spotify_token_expires',newtoken['expires_in'] + getepoch());
         })
         .catch(function (error) {
         console.error(error);
         });
     }
-    var lcl =  window.localStorage.getItem('spotify_username')
+    var lcl =  window.sessionStorage.getItem('spotify_username')
     //DEBUG TODO
     //var lcl =  window.sessionStorage.getItem('spotify_username')
     if( lcl === null || lcl.split(' ').length < 1){
@@ -42,14 +42,14 @@ export default function Home(){
                     <input type="text" maxLength={10} id="userinput" className="codeinput shadow" defaultValue={tempuser}></input>
                 </div>
                 <div className="center" onClick={()=>{
-                    window.localStorage.setItem('spotify_username',document.getElementById('userinput').value)
+                    window.sessionStorage.setItem('spotify_username',document.getElementById('userinput').value)
                     //window.sessionStorage.setItem('spotify_username',document.getElementById('userinput').value)
                     window.location.replace('lobby/join');
                 }}>
                     <Button name="Join Lobby"/>
                 </div>
                 <div className="center" onClick={()=>{
-                    window.localStorage.setItem('spotify_username',document.getElementById('userinput').value)
+                    window.sessionStorage.setItem('spotify_username',document.getElementById('userinput').value)
                     //window.sessionStorage.setItem('spotify_username',document.getElementById('userinput').value)
                     window.location.replace('create');
                 }}>

@@ -1,0 +1,12 @@
+[Unit]
+Description=Gunicorn instance to serve spotiguess API
+After=network.target
+
+[Service]
+User=pi
+Group=www-data
+WorkingDirectory=/home/pi/spotiguess/src/dev/server
+ExecStart=/home/pi/.local/bin/gunicorn --worker-class eventlet -w 1 --bind unix:spotiguessapi.sock -m 007 server:app
+
+[Install]
+WantedBy=multi-user.target

@@ -6,7 +6,7 @@ import "../../Resources/Shared.css";
 import "./Lobby.css";
 import axios from "axios";
 import React, { useState, useEffect, useRef } from "react";
-import socketIOClient from "socket.io-client";
+import { io } from "socket.io-client";
 import Game from "../Game/Game";
 
 export default function LobbyWrapper(){
@@ -48,18 +48,26 @@ class Lobby extends React.Component{
     }
     componentDidMount(){
         var fuckreact = 0;
-        var socket = socketIOClient("ws://127.0.0.1:5000");
+        var socket = io("http://"+process.env.REACT_APP_SERVER_ADDRESS);
+        socket.on('connect_failed', err => console.log(err))
         socket.on("serverconnect", data => {
             if(data['status'] === 'good'){
                 this.setState({state:'lobby'})
                 //DEBUG TODO
-                socket.emit('lobbyupdate',{'action':'join','lobbyid':this.state.lobbyid,'name':window.localStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
-                //socket.emit('lobbyupdate',{'action':'join','lobbyid':this.state.lobbyid,'name':window.sessionStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
+                socket.emit('lobbyupdate',{'action':'join','lobbyid':this.state.lobbyid,'name':window.sessionStorage.getItem('spotify_username'),'token':window.sessionStorage.getItem('spotify_access_token')})
+                //socket.emit('lobbyupdate',{'action':'join','lobbyid':this.state.lobbyid,'name':window.sessionStorage.getItem('spotify_username'),'token':window.sessionStorage.getItem('spotify_access_token')})
             }
             else{
                 console.error('error');
             }
         });
+        socket.on("connect_error", (err) => {
+            console.log(`connect_error due to ${err.message}`);
+        });
+        socket.on('error', function (err) { 
+            console.log("Socket.IO Error"); 
+            console.log(err.stack); // this is changed from your code in last comment
+         });
 
         socket.on("lobbyupdate", data => {
             //alert('got a lobbyalert')
@@ -69,6 +77,7 @@ class Lobby extends React.Component{
             }
             else{
                 console.error(data['data']);
+                console.error(data);
                 alert(data['data'])
                 window.location.replace('/');
             }
@@ -141,7 +150,7 @@ class Lobby extends React.Component{
         this.client.current = socket;
 
         window.onbeforeunload = function () {
-            socket.emit('client_disconnecting', {'lobbyid':this.state.lobbyid,'token':this.state.token,'username':window.localStorage.getItem('spotify_username')});
+            socket.emit('client_disconnecting', {'lobbyid':this.state.lobbyid,'token':this.state.token,'username':window.sessionStorage.getItem('spotify_username')});
         }
     }
 
@@ -153,7 +162,7 @@ class Lobby extends React.Component{
         //alert(answer)
         this.setState({voted:true})
         this.setState({selectedanswer:answer})
-        this.client.current.emit('lobbyupdate',{'answer':answer,'question':this.state.currentquestion,'action':'vote','lobbyid':this.state.lobbyid,'name':window.localStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
+        this.client.current.emit('lobbyupdate',{'answer':answer,'question':this.state.currentquestion,'action':'vote','lobbyid':this.state.lobbyid,'name':window.sessionStorage.getItem('spotify_username'),'token':window.sessionStorage.getItem('spotify_access_token')})
     }
 
     render(){
@@ -194,15 +203,15 @@ class Lobby extends React.Component{
                         </div>
         
                         <div id='readybutton' className="center" onClick={()=>{
-                                //DEBUG TODO client.current.emit('lobbyupdate',{'action':'ready','lobbyid':props.lobbyid,'name':window.localStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
-                                this.client.current.emit('lobbyupdate',{'action':'ready','lobbyid':this.state.lobbyid,'name':window.localStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
+                                //DEBUG TODO client.current.emit('lobbyupdate',{'action':'ready','lobbyid':props.lobbyid,'name':window.sessionStorage.getItem('spotify_username'),'token':window.sessionStorage.getItem('spotify_access_token')})
+                                this.client.current.emit('lobbyupdate',{'action':'ready','lobbyid':this.state.lobbyid,'name':window.sessionStorage.getItem('spotify_username'),'token':window.sessionStorage.getItem('spotify_access_token')})
                                 document.getElementById('readybutton').remove();
                             }}>
                             <Button name="Ready"/>
                         </div>
                         <div className="center" onClick={()=>{
-                                // DEBUG TODO client.current.emit('lobbyupdate',{'action':'leave','lobbyid':props.lobbyid,'name':window.localStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
-                                this.client.current.emit('lobbyupdate',{'action':'leave','lobbyid':this.state.lobbyid,'name':window.localStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
+                                // DEBUG TODO client.current.emit('lobbyupdate',{'action':'leave','lobbyid':props.lobbyid,'name':window.sessionStorage.getItem('spotify_username'),'token':window.sessionStorage.getItem('spotify_access_token')})
+                                this.client.current.emit('lobbyupdate',{'action':'leave','lobbyid':this.state.lobbyid,'name':window.sessionStorage.getItem('spotify_username'),'token':window.sessionStorage.getItem('spotify_access_token')})
                                 window.location.replace('/');
                             }}>
                             <Button name="Leave"/>

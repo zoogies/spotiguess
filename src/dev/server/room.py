@@ -57,9 +57,9 @@ class room:
                 return False #not allowed
         else:
             #TODO ADD CHECK FOR DUPLICATE TOKEN WITH DIFFERENT NAME, LEAVING ON NOW FOR DEBUG PURPOSES
-            for name in self.players:
-                if self.private[name][token] == token:
-                    return False
+            #for name in self.players:
+            #    if self.private[name][token] == token:
+            #        return False
             # TODO UNCOMMENT THIS FOR PLAYTEST
 
             self.players[name] = {'state':'unready'}
@@ -126,36 +126,37 @@ class room:
                         else:
                             self.questions[i]['answers'][wrongperson] = "incorrect"
                     
-                # loop generating questions
-                for i in range(len(self.questions)):
-                    url = 'https://api.spotify.com/v1/me/top/tracks?time_range='+(self.timespan).replace(" ","_")+'&limit=20&offset=0'
+                    # loop generating questions
+                    #TODO THIS PART IS BUGGED TODO TODO TODO TODO TODO TODO
+                    for i in range(len(self.questions)):
+                        url = 'https://api.spotify.com/v1/me/top/tracks?time_range='+(self.timespan).replace(" ","_")+'&limit=20&offset=0'
 
-                    headers = CaseInsensitiveDict()
-                    headers["Authorization"] = ("Bearer " + self.private.get(person)['token'])
+                        headers = CaseInsensitiveDict()
+                        headers["Authorization"] = ("Bearer " + self.private.get(person)['token'])
 
-                    #####
+                        #####
 
-                    # THIS IS A CRAZY SCUFFY PART OF THE METHOD THAT ENSURES THE REQUEST WENT THROUGH (COULD RESULT IN INFINITE LOOP BE CAREFUL)
+                        # THIS IS A CRAZY SCUFFY PART OF THE METHOD THAT ENSURES THE REQUEST WENT THROUGH (COULD RESULT IN INFINITE LOOP BE CAREFUL)
 
-                    resp = requests.get(url, headers=headers)
-
-                    while(resp.status_code != 200):
-                        #print('entered catch loop')
                         resp = requests.get(url, headers=headers)
 
-                    resp = resp.json()
+                        while(resp.status_code != 200):
+                            #print('entered catch loop')
+                            resp = requests.get(url, headers=headers)
 
-                    #####
+                        resp = resp.json()
 
-                    #print('prewhile',self.questions[i]['song'])
-                    while(self.questions[i]['song']=={}):
-                        songurl = resp['items'][random.randint(0,len(resp['items'])-1)]['external_urls']['spotify']
-                        if songurl in self.usedsongs:
-                            pass
-                        else:
-                            self.questions[i]['song']= "https://open.spotify.com/embed/"+songurl[25:]
-                            self.usedsongs.append("https://open.spotify.com/embed/"+songurl[25:])
-                            #print('set list',i,'to',songurl)
+                        #####
+
+                        #print('prewhile',self.questions[i]['song'])
+                        while(self.questions[i]['song']=={}):
+                            songurl = resp['items'][random.randint(0,len(resp['items'])-1)]['external_urls']['spotify']
+                            if songurl in self.usedsongs:
+                                pass
+                            else:
+                                self.questions[i]['song']= "https://open.spotify.com/embed/"+songurl[25:]
+                                self.usedsongs.append("https://open.spotify.com/embed/"+songurl[25:])
+                                #print('set list',i,'to',songurl)
                     
 
                     #self.questions[i]['song'] = {}

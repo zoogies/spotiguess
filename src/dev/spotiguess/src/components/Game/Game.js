@@ -16,7 +16,6 @@ export default function Game(props){
             </div>
             <div className="center gamestatus">
                 <h1 className="timer">{props.currenttime}</h1>
-                <h2 className="votes">{props.votes} votes</h2>
             </div>
             <div className="toplevel center">
                 <iframe
