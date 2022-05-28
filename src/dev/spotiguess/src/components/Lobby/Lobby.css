@@ -56,3 +56,17 @@ input[type=number] {
 h3{
     margin:0px;
 }
+
+.lobbystatus{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.lobbystatustop{
+    margin: 0px;
+}
+.lobbystatusbottom{
+    color: gray;
+    margin: 0px;
+}

@@ -40,15 +40,15 @@ export default class CreateLobby extends React.Component{
                     <h2 className="Label">Timespan:</h2>
                     <Dropdown react_id="timespandata" options={["short term","medium term","long term"]}/>
                 </div>
-                <div className="center" onClick={()=>{
+                <div className="center">
+                    <Button name="Create" click={()=>{
                     this.create();
-                }}>
-                    <Button name="Create"/>
+                }}/>
                 </div>
-                <div className="center" onClick={()=>{
+                <div className="center">
+                    <Button name="Main Menu" click={()=>{
                         window.location.replace('/');
-                    }}>
-                    <Button name="Main Menu"/>
+                    }}/>
                 </div>
             </div>
         )

@@ -7,13 +7,13 @@ import { loginUrl } from "../../Resources/spotify";
 
 export default function SpotifyLinker(){
     //grab our cached id from local storage
-    var clientid = window.sessionStorage.getItem('spotify_access_token');
+    var clientid = window.localStorage.getItem('spotify_access_token');
     //check if its longer than 0 trimmed of whitespace and if its not null
     if(clientid !== null && clientid.trim(' ').length > 0){
         return(
             <div className="Button highlight2 shadow" onClick={()=>{
                 //clears the key from cache and reloads the site
-                window.sessionStorage.clear();
+                window.localStorage.clear();
                 window.location.reload();
             }}>
                 <h2>Unlink Spotify</h2>

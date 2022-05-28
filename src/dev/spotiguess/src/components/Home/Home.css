@@ -1,0 +1,12 @@
+.version_num{
+    color:gray;
+    margin: 0px;
+}
+.top{
+    margin-top: 16px;
+}
+.bugreport{
+    color: orange;
+    margin: 0px;
+    text-decoration: underline;
+}

@@ -47,6 +47,10 @@ class Lobby extends React.Component{
         this.sendanswer = this.sendanswer.bind(this);
     }
     componentDidMount(){
+        if(window.localStorage.getItem('spotify_username')){
+            console.log(typeof window.localStorage.getItem('spotify_username'))
+            console.log(window.localStorage.getItem('spotify_username'))
+        }
         var fuckreact = 0;
         var socket = io("http://"+process.env.REACT_APP_SERVER_ADDRESS);
         socket.on('connect_failed', err => console.log(err))
@@ -54,8 +58,8 @@ class Lobby extends React.Component{
             if(data['status'] === 'good'){
                 this.setState({state:'lobby'})
                 //DEBUG TODO
-                socket.emit('lobbyupdate',{'action':'join','lobbyid':this.state.lobbyid,'name':window.sessionStorage.getItem('spotify_username'),'token':window.sessionStorage.getItem('spotify_access_token')})
-                //socket.emit('lobbyupdate',{'action':'join','lobbyid':this.state.lobbyid,'name':window.sessionStorage.getItem('spotify_username'),'token':window.sessionStorage.getItem('spotify_access_token')})
+                socket.emit('lobbyupdate',{'action':'join','lobbyid':this.state.lobbyid,'name':window.localStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
+                //socket.emit('lobbyupdate',{'action':'join','lobbyid':this.state.lobbyid,'name':window.localStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
             }
             else{
                 console.error('error');
@@ -150,7 +154,7 @@ class Lobby extends React.Component{
         this.client.current = socket;
 
         window.onbeforeunload = function () {
-            socket.emit('client_disconnecting', {'lobbyid':this.state.lobbyid,'token':this.state.token,'username':window.sessionStorage.getItem('spotify_username')});
+            socket.emit('client_disconnecting', {'lobbyid':this.state.lobbyid,'token':this.state.token,'username':window.localStorage.getItem('spotify_username')});
         }
     }
 
@@ -162,7 +166,7 @@ class Lobby extends React.Component{
         //alert(answer)
         this.setState({voted:true})
         this.setState({selectedanswer:answer})
-        this.client.current.emit('lobbyupdate',{'answer':answer,'question':this.state.currentquestion,'action':'vote','lobbyid':this.state.lobbyid,'name':window.sessionStorage.getItem('spotify_username'),'token':window.sessionStorage.getItem('spotify_access_token')})
+        this.client.current.emit('lobbyupdate',{'answer':answer,'question':this.state.currentquestion,'action':'vote','lobbyid':this.state.lobbyid,'name':window.localStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
     }
 
     render(){
@@ -202,19 +206,19 @@ class Lobby extends React.Component{
                             }
                         </div>
         
-                        <div id='readybutton' className="center" onClick={()=>{
-                                //DEBUG TODO client.current.emit('lobbyupdate',{'action':'ready','lobbyid':props.lobbyid,'name':window.sessionStorage.getItem('spotify_username'),'token':window.sessionStorage.getItem('spotify_access_token')})
-                                this.client.current.emit('lobbyupdate',{'action':'ready','lobbyid':this.state.lobbyid,'name':window.sessionStorage.getItem('spotify_username'),'token':window.sessionStorage.getItem('spotify_access_token')})
+                        <div id='readybutton' className="center">
+                            <Button name="Ready" click={()=>{
+                                //DEBUG TODO client.current.emit('lobbyupdate',{'action':'ready','lobbyid':props.lobbyid,'name':window.localStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
+                                this.client.current.emit('lobbyupdate',{'action':'ready','lobbyid':this.state.lobbyid,'name':window.localStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
                                 document.getElementById('readybutton').remove();
-                            }}>
-                            <Button name="Ready"/>
+                            }}/>
                         </div>
-                        <div className="center" onClick={()=>{
-                                // DEBUG TODO client.current.emit('lobbyupdate',{'action':'leave','lobbyid':props.lobbyid,'name':window.sessionStorage.getItem('spotify_username'),'token':window.sessionStorage.getItem('spotify_access_token')})
-                                this.client.current.emit('lobbyupdate',{'action':'leave','lobbyid':this.state.lobbyid,'name':window.sessionStorage.getItem('spotify_username'),'token':window.sessionStorage.getItem('spotify_access_token')})
+                        <div className="center">
+                            <Button name="Leave" click={()=>{
+                                // DEBUG TODO client.current.emit('lobbyupdate',{'action':'leave','lobbyid':props.lobbyid,'name':window.localStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
+                                this.client.current.emit('lobbyupdate',{'action':'leave','lobbyid':this.state.lobbyid,'name':window.localStorage.getItem('spotify_username'),'token':window.localStorage.getItem('spotify_access_token')})
                                 window.location.replace('/');
-                            }}>
-                            <Button name="Leave"/>
+                            }}/>
                         </div>
                     </div>
             )
@@ -242,10 +246,10 @@ class Lobby extends React.Component{
                             })
                         }
                     </div>
-                    <div className="center" onClick={()=>{
+                    <div className="center">
+                        <Button name="Exit" click={()=>{
                         window.location.replace('/');  //TODO ALLOW RETURNING TO LOBBY AND URGENT TODO REMOVE LOBBY PEOPLE AFTER GAME
-                    }}>
-                        <Button name="Exit"/>
+                    }}/>
                     </div>
                 </div>
             )
@@ -273,7 +277,8 @@ function JoinLobby(){
             <div className="center">
                 <input type="number" id="codeinput" className="codeinput shadow" maxLength={6} placeholder="LOBBY CODE"></input>
             </div>
-            <div className="center" onClick={()=>{
+            <div className="center">
+                <Button name="Join" click={()=>{
                     var cachedid = document.getElementById('codeinput').value;
                     axios.post('http://'+process.env.REACT_APP_SERVER_ADDRESS + '/checklobbyexists', {
                         lobbyid: cachedid
@@ -290,13 +295,12 @@ function JoinLobby(){
                         console.error(error);
                         alert("Something went wrong. Please make sure you have entered a valid 5 digit number.")
                       });
-                }}>
-                <Button name="Join"/>
+                }}/>
             </div>
-            <div className="center" onClick={()=>{
+            <div className="center">
+                <Button name="Main Menu" click={()=>{
                     window.location.replace('/');
-                }}>
-                <Button name="Main Menu"/>
+                }}/>
             </div>
         </div>
     )

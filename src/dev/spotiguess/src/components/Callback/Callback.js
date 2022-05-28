@@ -16,9 +16,9 @@ export default function Callback(props){
             }
             else{
                 //console.log(response)
-                window.sessionStorage.setItem('spotify_access_token',response['access_token']);
-                window.sessionStorage.setItem('spotify_refresh_token',response['refresh_token']);
-                window.sessionStorage.setItem('spotify_token_expires',response['expires_in'] + getepoch());
+                window.localStorage.setItem('spotify_access_token',response['access_token']);
+                window.localStorage.setItem('spotify_refresh_token',response['refresh_token']);
+                window.localStorage.setItem('spotify_token_expires',response['expires_in'] + getepoch());
                 window.location.replace('/');
             }
           })
