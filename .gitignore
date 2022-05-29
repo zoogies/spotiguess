@@ -2,3 +2,4 @@
 .env
 src/dev/server/spotiguess.sock
 src/dev/ssl
+src/dev/server/__pycache__
