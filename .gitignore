@@ -1,3 +1,4 @@
 
 .env
 src/dev/server/spotiguess.sock
+src/dev/ssl

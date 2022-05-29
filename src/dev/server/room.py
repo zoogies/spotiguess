@@ -51,7 +51,6 @@ class room:
 
         if(name in self.players): # if the players name is in the lobby
             if(self.private[name]['token'] == token): #if this player already exists(likely reconnecting)
-                #print(self.players)
                 return True #all gucci
             else:
                 return False #not allowed
@@ -84,9 +83,12 @@ class room:
 
         self.players[name]['state'] = 'ready'
         #print(name,self.players[name]['state'])
-        return self.trytostart()
 
     # called after player ready event, checks if there are 4 or more players and if they are all ready then generates all questions
+
+    # UPGRADES:
+    # FOR EACH PLAYER SELECTED WHEN GENERATING QUESTIONS: REFER TO DICT FOR THEIR JSON DATA INSTEAD OF FETCHING UNLESSE IT DOESENT EXIST THEN CACHE IT
+
     def trytostart(self):
         self.lastinteraction = int(time.time())
 
@@ -101,6 +103,9 @@ class room:
                 #print(p,'not ready')
         if ready:
             self.gamestate = 'ingame'
+
+            cache = {} #dict for caching user question data
+
             # TODO ACTUALLY FOR PICKING QUESTIONS AND AVOIDING REPEATS THE QUESTION SHOULD PICK THE PERSON AND THEN GO IN DESCENDING ORDER OF THEIR POPULAR SO ITS REAL AND
             if(self.contenttype == 'song'):
                 #loop picking each person in order
@@ -109,6 +114,7 @@ class room:
                     # start by iterating over the amount of questions we need to make
                     # pick a random person from our player list, get their token and get a top song from the spotify api
                     person = list(self.private)[random.randint(0,len(self.private) -1)]
+                    token = self.private.get(person)['token']
 
                     self.questions.append({
                         "song":{},
@@ -118,17 +124,7 @@ class room:
                         }
                     })
 
-                    #WARNING TODO UNTESTED METHOD FOR POPULATING INCORRECT GUESSES
-                    while(len(self.questions[i]['answers']) < 4):
-                        wrongperson = list(self.private)[random.randint(0,len(self.private) -1)]
-                        if wrongperson in self.questions[i]['answers']:
-                            pass
-                        else:
-                            self.questions[i]['answers'][wrongperson] = "incorrect"
-                    
-                    # loop generating questions
-                    #TODO THIS PART IS BUGGED TODO TODO TODO TODO TODO TODO
-                    for i in range(len(self.questions)):
+                    if not token in cache:
                         url = 'https://api.spotify.com/v1/me/top/tracks?time_range='+(self.timespan).replace(" ","_")+'&limit=20&offset=0'
 
                         headers = CaseInsensitiveDict()
@@ -148,22 +144,28 @@ class room:
 
                         #####
 
-                        #print('prewhile',self.questions[i]['song'])
+                        cache[self.private.get(person)['token']] = resp
+
+                    #populate incorrect guesses
+                    while(len(self.questions[i]['answers']) < 4):
+                        wrongperson = list(self.private)[random.randint(0,len(self.private) -1)]
+                        if wrongperson in self.questions[i]['answers']:
+                            pass
+                        else:
+                            self.questions[i]['answers'][wrongperson] = "incorrect"
+                    
+                    # loop generating questions
+                    for i in range(len(self.questions)):
                         while(self.questions[i]['song']=={}):
-                            songurl = resp['items'][random.randint(0,len(resp['items'])-1)]['external_urls']['spotify']
+                            songurl = cache[token]['items'][random.randint(0,len(cache[token]['items'])-1)]['external_urls']['spotify']
                             if songurl in self.usedsongs:
                                 pass
                             else:
                                 self.questions[i]['song']= "https://open.spotify.com/embed/"+songurl[25:]
-                                self.usedsongs.append("https://open.spotify.com/embed/"+songurl[25:])
-                                #print('set list',i,'to',songurl)
-                    
+                                self.usedsongs.append(songurl)
 
-                    #self.questions[i]['song'] = {}
-                
                 ready = self.questions
-
-                return ready # EVENTUALLY THIS RETURN WILL BE CHECKED AS EITHER FALSE OR THE GAME DATA
+                return ready
             else:
                 return False
     

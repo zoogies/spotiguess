@@ -79,23 +79,12 @@ def disconnect_details(data):
 @socketio.event
 def lobbyupdate(message):
     try:
-        if(message['action'] == 'join'): #TO TRY: TRY ONLY GUNICORN HOSTING WITH THE PORTS FORWARDED SOMEONE ELSE JOINS
-            print("DEV-------------------------------GOT JOIN REQUEST")
-            if(stack[int(message['lobbyid'])].getgamestate()=='lobby'):
-                print("DEV-------------------------------IS A LOBBY")
-                print("DEV-------------------------------WTF")
-                print("TOKEN-----------------------"+str(stack[int(message['lobbyid'])].addplayer(message['name'],message['token'])))
-                if(stack[int(message['lobbyid'])].addplayer(message['name'],message['token'])):
-                    print("is a lobby")
-                    join_room(message['lobbyid'])
-                    print("joined room")
-                    emit('lobbyupdate',{'status':'good','data': stack[int(message['lobbyid'])].getplayers()}, to=message['lobbyid'])
-                    print("sent got players")
-                else:
-                    print("DEV------------------------------------------NAME ALREADY IN")
-                    emit('lobbyupdate', {'status':'bad','data': 'This name is already in this lobby.'})
+        if(message['action'] == 'join'): #if player trying to join
+            if(stack[int(message['lobbyid'])].addplayer(message['name'],message['token'])):
+                join_room(message['lobbyid'])
+                emit('lobbyupdate',{'status':'good','data': stack[int(message['lobbyid'])].getplayers()}, to=message['lobbyid'])
             else:
-                emit('lobbyupdate', {'status':'bad','data': 'This game has already started.'})
+                emit('lobbyupdate', {'status':'bad','data': 'You are already in this lobby with a different name.'})
         elif(message['action'] == 'leave'):
             stack[int(message['lobbyid'])].removeplayer(message['name'],message['token'])
             roomop = leave_room(message['lobbyid'])
@@ -105,11 +94,12 @@ def lobbyupdate(message):
                 #print('hitting up my clients')
                 emit('lobbyupdate',{'status':'good','data': stack[int(message['lobbyid'])].getplayers()}, to=message['lobbyid'])
         elif(message['action'] == 'ready'):
-            result = stack[int(message['lobbyid'])].readyplayer(message['name'],message['token'])
+            stack[int(message['lobbyid'])].readyplayer(message['name'],message['token'])
+            emit('lobbyupdate',{'status':'good','data': stack[int(message['lobbyid'])].getplayers()}, to=message['lobbyid'])
+            result = stack[int(message['lobbyid'])].trytostart()
             if(result != False and result != None):
                 emit('entergame',{'status':'good','data': result}, to=message['lobbyid'])
-            else:
-                emit('lobbyupdate',{'status':'good','data': stack[int(message['lobbyid'])].getplayers()}, to=message['lobbyid'])
+
         elif(message['action'] == 'vote'):
             votes = stack[int(message['lobbyid'])].vote(message['name'],message['question'],message['answer']) #either true of the number of votes
             if(votes == True): #True if that was the last vote, should emit to show the answers then clients will move on
