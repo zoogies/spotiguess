@@ -64,7 +64,7 @@ export default function Home(){
                 <p className="center version_num top">build 052922</p>
                 <p className="center version_num">Ryan Zmuda - 2022</p>
                 <p className="center bugreport" onClick={()=>{
-                    window.location.replace('https://github.com/Yoyolick/spotiguess/issues');
+                    window.open('https://github.com/Yoyolick/spotiguess/issues', '_blank').focus();
                 }}>click to report a bug</p>
             </div>
         )
@@ -76,6 +76,11 @@ export default function Home(){
                  <div className="toplevel">
                     <SpotifyLinker/>
                 </div>
+                <p className="center version_num top">build 052922</p>
+                <p className="center version_num">Ryan Zmuda - 2022</p>
+                <p className="center bugreport" onClick={()=>{
+                    window.open('https://github.com/Yoyolick/spotiguess/issues', '_blank').focus();
+                }}>click to report a bug</p>
             </div>
             
         )

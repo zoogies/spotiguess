@@ -22,17 +22,17 @@ export default function SpotifyLinker(){
     }
     else{
         return(
-            <div className="center Link" onClick={()=>{
-                window.location.href = (loginUrl);
-            }}>
-            <div className="Button highlight1 shadow">
-                <BsSpotify className="spotify_link_icon" size={40} color="white" />
-                <h2>Link Spotify</h2>
-            </div>
-            <div className="warning_top">
-                <AiFillWarning className="warning_icon" color="yellow" size={30}/>
-                <h2 className="warning_lbl">Link your spotify to play.</h2>
-            </div>
+            <div className="center Link">
+                <div className="Button highlight1 shadow" onClick={()=>{
+                    window.location.href = (loginUrl);
+                }}>
+                    <BsSpotify className="spotify_link_icon" size={40} color="white" />
+                    <h2>Link Spotify</h2>
+                </div>
+                <div className="warning_top">
+                    <AiFillWarning className="warning_icon" color="yellow" size={30}/>
+                    <h2 className="warning_lbl">Link your spotify to play.</h2>
+                </div>
             </div>
         )
     }
