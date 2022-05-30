@@ -1,5 +1,5 @@
 const authEndpoint = "https://accounts.spotify.com/authorize";
-const redirectUri = "http://spotiguess.zoogies.live/callback";
+const redirectUri = "https://spotiguess.zoogies.live/callback";
 const clientId = "03f7867600344088955c5b0f5a502c60";
 
 const scopes = [

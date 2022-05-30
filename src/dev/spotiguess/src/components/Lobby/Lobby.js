@@ -48,11 +48,11 @@ class Lobby extends React.Component{
     }
     componentDidMount(){
         if(window.localStorage.getItem('spotify_username')){
-            console.log(typeof window.localStorage.getItem('spotify_username'))
-            console.log(window.localStorage.getItem('spotify_username'))
+            //console.log(typeof window.localStorage.getItem('spotify_username'))
+            //console.log(window.localStorage.getItem('spotify_username'))
         }
         var fuckreact = 0;
-        var socket = io("http://"+process.env.REACT_APP_SERVER_ADDRESS);
+        var socket = io("https://"+process.env.REACT_APP_SERVER_ADDRESS);
         socket.on('connect_failed', err => console.log(err))
         socket.on("serverconnect", data => {
             if(data['status'] === 'good'){
@@ -280,7 +280,7 @@ function JoinLobby(){
             <div className="center">
                 <Button name="Join" click={()=>{
                     var cachedid = document.getElementById('codeinput').value;
-                    axios.post('http://'+process.env.REACT_APP_SERVER_ADDRESS + '/checklobbyexists', {
+                    axios.post('https://'+process.env.REACT_APP_SERVER_ADDRESS + '/checklobbyexists', {
                         lobbyid: cachedid
                       })
                       .then(function (response) {

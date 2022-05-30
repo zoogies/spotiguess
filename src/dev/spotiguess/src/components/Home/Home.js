@@ -10,30 +10,33 @@ export default function Home(){
     //grab our cached id from local storage
     var clientid = window.localStorage.getItem('spotify_access_token');
     var access_expires = window.localStorage.getItem('spotify_token_expires');
-    if(getepoch() - access_expires > 0){
-        axios.post('http://'+process.env.REACT_APP_SERVER_ADDRESS + '/refreshtoken', {
-        refresh_token: window.localStorage.getItem('spotify_refresh_token')
-        })
-        .then(function (response) {
-            var newtoken = JSON.parse(JSON.parse(response.data))
-            window.localStorage.setItem('spotify_access_token',(newtoken['access_token']));
-            window.localStorage.setItem('spotify_token_expires',newtoken['expires_in'] + getepoch());
-        })
-        .catch(function (error) {
-        console.error(error);
-        });
-    }
-    var lcl =  window.localStorage.getItem('spotify_username')
-    //DEBUG TODO
-    //var lcl =  window.localStorage.getItem('spotify_username')
-    if( lcl === null || lcl.split(' ').length < 1){
-        var tempuser = 'user'+Math.floor(Math.random() * 10000);
-    }
-    else{
-        var tempuser = lcl;
-    }
+
     //check if its longer than 0 trimmed of whitespace and if its not null
     if(clientid !== null && clientid.trim(' ').length > 0){
+
+        if(getepoch() - access_expires > 0){
+            axios.post('https://'+process.env.REACT_APP_SERVER_ADDRESS + '/refreshtoken', {
+            refresh_token: window.localStorage.getItem('spotify_refresh_token')
+            })
+            .then(function (response) {
+                var newtoken = JSON.parse(JSON.parse(response.data))
+                window.localStorage.setItem('spotify_access_token',(newtoken['access_token']));
+                window.localStorage.setItem('spotify_token_expires',newtoken['expires_in'] + getepoch());
+            })
+            .catch(function (error) {
+            console.error(error);
+            });
+        }
+        var lcl =  window.localStorage.getItem('spotify_username')
+        //DEBUG TODO
+        //var lcl =  window.localStorage.getItem('spotify_username')
+        if( lcl === null || lcl.split(' ').length < 1){
+            var tempuser = 'user'+Math.floor(Math.random() * 10000);
+        }
+        else{
+            var tempuser = lcl;
+        }
+
         return (
             <div className="toplevel">
                 <Header/>
@@ -58,7 +61,7 @@ export default function Home(){
                 <div className="center">
                     <SpotifyLinker/>
                 </div>
-                <p className="center version_num top">build 052822</p>
+                <p className="center version_num top">build 052922</p>
                 <p className="center version_num">Ryan Zmuda - 2022</p>
                 <p className="center bugreport" onClick={()=>{
                     window.location.replace('https://github.com/Yoyolick/spotiguess/issues');

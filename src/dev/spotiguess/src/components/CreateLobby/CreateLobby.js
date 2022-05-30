@@ -15,7 +15,7 @@ export default class CreateLobby extends React.Component{
         var timespandrop = document.getElementById('timespandata');
         var timespandropvalue = timespandrop.options[timespandrop.selectedIndex].value;
 
-        axios.post('http://'+process.env.REACT_APP_SERVER_ADDRESS + '/createlobby', {
+        axios.post('https://'+process.env.REACT_APP_SERVER_ADDRESS + '/createlobby', {
             questions: questionsdropvalue,
             timespan: timespandropvalue
           })
@@ -34,7 +34,7 @@ export default class CreateLobby extends React.Component{
                 <Header/>
                 <div className="center">
                     <h2 className="Label">Questions:</h2>
-                    <Dropdown react_id="questionsdata" options={[5,10,15]}/>
+                    <Dropdown react_id="questionsdata" options={[5,10,15,20,25,30]}/>
                 </div>
                 <div className="center">
                     <h2 className="Label">Timespan:</h2>
