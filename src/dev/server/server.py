@@ -44,6 +44,8 @@ atexit.register(lambda: scheduler.shutdown())
 
 ###############
 
+#LOBBY CREATE AND CHECKER
+
 @app.route('/createlobby', methods = ['POST'])
 def createlobby():
     lobbynum = random.randint(10000,99999)
@@ -57,6 +59,10 @@ def checklobbyexists():
     else:
         return json.dumps(True)
 
+###############
+
+#TOKEN SHIT
+
 @app.route('/gentoken',methods=['POST'])
 def gentoken():
     return json.dumps(spotify_auth.getToken(request.json['code'],clientid,clientsecret,redirecturi))
@@ -65,6 +71,7 @@ def gentoken():
 def refreshtoken():
     return json.dumps(spotify_auth.refreshAuth(request.json['refresh_token'],clientid,clientsecret))
 
+###############
 
 @socketio.event
 def connect():
