@@ -115,8 +115,11 @@ def lobbyupdate(message):
     except:
         pass
 
+address = "127.0.0.1"
+#address = "192.168.50.214"
+
 if __name__ == '__main__':
-    socketio.run(app,use_reloader=True,debug=True,host="192.168.50.214",port=5050)
+    socketio.run(app,use_reloader=True,debug=True,host=address,port=5050)
 
 # IDEAS
 # could add question time amount and additional game parameters

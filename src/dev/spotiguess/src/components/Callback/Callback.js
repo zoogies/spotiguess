@@ -6,7 +6,7 @@ import getepoch from "../../Resources/utcepoch";
 export default function Callback(props){
     const code = new URLSearchParams(window.location.search).get('code')
     useEffect(()=>{
-        axios.post('https://'+process.env.REACT_APP_SERVER_ADDRESS + '/gentoken', {
+        axios.post(process.env.REACT_APP_SERVER_ADDRESS + '/gentoken', {
             code: code
           })
           .then(function (response) {

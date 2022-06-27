@@ -15,7 +15,7 @@ export default function Home(){
     if(clientid !== null && clientid.trim(' ').length > 0){
 
         if(getepoch() - access_expires > 0){
-            axios.post('https://'+process.env.REACT_APP_SERVER_ADDRESS + '/refreshtoken', {
+            axios.post(process.env.REACT_APP_SERVER_ADDRESS + '/refreshtoken', {
             refresh_token: window.localStorage.getItem('spotify_refresh_token')
             })
             .then(function (response) {
