@@ -1,2 +1,9 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<script>
+    var clientid = window.localStorage.getItem('spotify_access_token');
+    var expires = window.localStorage.getItem('spotify_token_expires');
+</script>
+
+<main>
+    <p>{clientid}</p>
+    <p>{expires}</p>
+</main>
